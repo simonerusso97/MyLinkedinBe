@@ -137,7 +137,6 @@ public class PostOfferorImpl implements GetPostStrategy{
 				
 				
 				postDTO.setJsonDocument(jsonDocumentDTOList);
-				//TODO: manca la commentLIST
 				
 				postDTOList.add(postDTO);
 			}

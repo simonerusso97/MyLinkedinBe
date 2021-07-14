@@ -45,6 +45,9 @@ public Post() {}
 	
 	@OneToMany(mappedBy = "post", targetEntity = RegularInterestedInPost.class, cascade = CascadeType.ALL , fetch = FetchType.LAZY)
 	List<RegularInterestedInPost> regularInterestedInPost;
+	
+	@OneToMany(mappedBy = "post", targetEntity = Attached.class, cascade = CascadeType.ALL , fetch = FetchType.LAZY)
+	List<Attached> attachedList;
 
 	public int getId() {
 		return id;
@@ -126,6 +129,16 @@ public Post() {}
 	public void setRegularInterestedInPost(List<RegularInterestedInPost> regularInterestedInPost) {
 		this.regularInterestedInPost = regularInterestedInPost;
 	}
+
+	public List<Attached> getAttachedList() {
+		return attachedList;
+	}
+
+	public void setAttachedList(List<Attached> attachedList) {
+		this.attachedList = attachedList;
+	}
+	
+	
 	
 
 }

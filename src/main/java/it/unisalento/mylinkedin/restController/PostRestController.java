@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 
 import it.unisalento.mylinkedin.domain.entity.Applicant;
+import it.unisalento.mylinkedin.domain.entity.Attached;
 import it.unisalento.mylinkedin.domain.entity.Company;
 import it.unisalento.mylinkedin.domain.entity.Comment;
 import it.unisalento.mylinkedin.domain.entity.JsonDocument;
@@ -39,6 +40,7 @@ import it.unisalento.mylinkedin.domain.entity.Structure;
 import it.unisalento.mylinkedin.domain.relationship.PostRequireSkill;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
 import it.unisalento.mylinkedin.dto.ApplicantDTO;
+import it.unisalento.mylinkedin.dto.AttachedDTO;
 import it.unisalento.mylinkedin.dto.CompanyDTO;
 import it.unisalento.mylinkedin.dto.JsonDocumentDTO;
 import it.unisalento.mylinkedin.dto.OfferorDTO;
@@ -111,7 +113,7 @@ public class PostRestController {
 	}
 	
 	@RequestMapping(value="/save", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PostDTO> save(@RequestBody @Valid PostDTO postDTO) throws OperationFailedException, UserNotFoundException, IOException, JSONException{
+	public Integer save(@RequestBody @Valid PostDTO postDTO) throws OperationFailedException, UserNotFoundException, IOException, JSONException{
 		Post post = new Post();
 		post.setHide(postDTO.isHide());
 		post.setName(postDTO.getName());
@@ -153,7 +155,7 @@ public class PostRestController {
 	    FileWriter file = new FileWriter(path);
         file.write(obj.valueToString(obj));
         file.close();
-
+        
         post.setId(postService.save(post).getId());
         
         JsonDocument jsonDocument = new JsonDocument();
@@ -164,8 +166,9 @@ public class PostRestController {
 		
 		
 		
+		
 
-		return new ResponseEntity<PostDTO>(HttpStatus.OK);
+		return post.getId();
 					
 	}
 	

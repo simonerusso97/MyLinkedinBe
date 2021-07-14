@@ -15,6 +15,7 @@ public class PostDTO {
 	List<SkillDTO> skillList;
 	RegularDTO createdBy;
 	List<CommentDTO> commentList;
+	List<AttachedDTO> attachedDTOList;
 	
 	public PostDTO() {}
 
@@ -97,6 +98,14 @@ public class PostDTO {
 
 	public void setCommentList(List<CommentDTO> commentList) {
 		this.commentList = commentList;
+	}
+
+	public List<AttachedDTO> getAttachedDTOList() {
+		return attachedDTOList;
+	}
+
+	public void setAttachedDTOList(List<AttachedDTO> attachedDTOList) {
+		this.attachedDTOList = attachedDTOList;
 	}
 
 	
