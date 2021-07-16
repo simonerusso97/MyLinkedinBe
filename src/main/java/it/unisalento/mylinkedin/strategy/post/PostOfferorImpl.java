@@ -19,6 +19,7 @@ import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import it.unisalento.mylinkedin.domain.entity.Applicant;
+import it.unisalento.mylinkedin.domain.entity.Attached;
 import it.unisalento.mylinkedin.domain.entity.Comment;
 import it.unisalento.mylinkedin.domain.entity.Offeror;
 import it.unisalento.mylinkedin.domain.entity.Post;
@@ -26,6 +27,7 @@ import it.unisalento.mylinkedin.domain.entity.Regular;
 import it.unisalento.mylinkedin.domain.relationship.PostRequireSkill;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
 import it.unisalento.mylinkedin.dto.ApplicantDTO;
+import it.unisalento.mylinkedin.dto.AttachedDTO;
 import it.unisalento.mylinkedin.dto.CompanyDTO;
 import it.unisalento.mylinkedin.dto.JsonDocumentDTO;
 import it.unisalento.mylinkedin.dto.PostDTO;
@@ -33,14 +35,16 @@ import it.unisalento.mylinkedin.dto.RegularDTO;
 import it.unisalento.mylinkedin.dto.SkillDTO;
 import it.unisalento.mylinkedin.dto.StructureDTO;
 import it.unisalento.mylinkedin.dto.CommentDTO;
+import it.unisalento.mylinkedin.iService.IAttachedService;
 import it.unisalento.mylinkedin.iService.IPostService;
 import it.unisalento.mylinkedin.iService.IUserService;
 
 public class PostOfferorImpl implements GetPostStrategy{
 
+
 	
 	@Override
-	public List<PostDTO> getAllPost(IPostService postService, IUserService userService) throws FileNotFoundException, IOException, ParseException {
+	public List<PostDTO> getAllPost(IPostService postService, IUserService userService, IAttachedService attachedService) throws FileNotFoundException, IOException, ParseException {
 		List<Post> postList = postService.findAll();
 		List<PostDTO> postDTOList = new ArrayList<>();
 		for (Post post : postList) {
@@ -116,6 +120,20 @@ public class PostOfferorImpl implements GetPostStrategy{
 				regularDTO.setEmail(post.getCreatedBy().getEmail());
 				
 				postDTO.setCreatedBy(regularDTO);
+				
+				List<Attached> attachedList = attachedService.findByPostIdAndType(post.getId(), "pdf");
+				List<AttachedDTO> attachedDTOList = new ArrayList<>();
+				AttachedDTO attachedDTO;
+				for(Attached att : attachedList) {
+					attachedDTO = new AttachedDTO();
+					attachedDTO.setFilename(att.getName());
+					attachedDTO.setId(att.getId());
+					attachedDTO.setType(att.getType());
+					
+					attachedDTOList.add(attachedDTO);
+				}
+				
+				postDTO.setAttachedDTOList(attachedDTOList);
 			
 				
 				//TODO: VERIFICARE il json document

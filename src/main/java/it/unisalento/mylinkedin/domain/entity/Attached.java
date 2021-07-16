@@ -13,6 +13,7 @@ public class Attached {
 	@Id
 	int id;
 	String name;
+	String type;
 	
 	@ManyToOne
 	Post post;
@@ -41,5 +42,14 @@ public class Attached {
 		this.post = post;
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	
 	
 }

@@ -18,6 +18,7 @@ import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import it.unisalento.mylinkedin.domain.entity.Applicant;
+import it.unisalento.mylinkedin.domain.entity.Attached;
 import it.unisalento.mylinkedin.domain.entity.Comment;
 import it.unisalento.mylinkedin.domain.entity.Company;
 import it.unisalento.mylinkedin.domain.entity.Offeror;
@@ -26,6 +27,7 @@ import it.unisalento.mylinkedin.domain.entity.Regular;
 import it.unisalento.mylinkedin.domain.relationship.PostRequireSkill;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
 import it.unisalento.mylinkedin.dto.ApplicantDTO;
+import it.unisalento.mylinkedin.dto.AttachedDTO;
 import it.unisalento.mylinkedin.dto.CompanyDTO;
 import it.unisalento.mylinkedin.dto.JsonDocumentDTO;
 import it.unisalento.mylinkedin.dto.OfferorDTO;
@@ -35,6 +37,7 @@ import it.unisalento.mylinkedin.dto.SkillDTO;
 import it.unisalento.mylinkedin.dto.StructureDTO;
 import it.unisalento.mylinkedin.dto.CommentDTO;
 import it.unisalento.mylinkedin.exceptions.UserNotFoundException;
+import it.unisalento.mylinkedin.iService.IAttachedService;
 import it.unisalento.mylinkedin.iService.ICompanyService;
 import it.unisalento.mylinkedin.iService.IPostService;
 import it.unisalento.mylinkedin.iService.IUserService;
@@ -42,7 +45,7 @@ import it.unisalento.mylinkedin.iService.IUserService;
 public class PostApplicantImpl implements GetPostStrategy{
 
 	@Override
-	public List<PostDTO> getAllPost(IPostService postService, IUserService userService) throws FileNotFoundException, IOException, ParseException, UserNotFoundException {
+	public List<PostDTO> getAllPost(IPostService postService, IUserService userService, IAttachedService attachedService) throws FileNotFoundException, IOException, ParseException, UserNotFoundException {
 		List<Post> postList = postService.findAll();
 		List<PostDTO> postDTOList = new ArrayList<>();
 		for (Post post : postList) {
@@ -97,49 +100,7 @@ public class PostApplicantImpl implements GetPostStrategy{
                 		
                 	}
                 	postDTO.setCommentList(commentDTOList);
-                } /*
-        				ComponentDTO contenitoreThread = new CompositeDTO();
-
-                        ComponentDTO contenitoreRisposte = new CompositeDTO();
-
-                        sezioneCommenti.add(contenitoreThread);
-                        
-                		//SETTO IL PADRE
-                        
-                        ApplicantDTO applicantDTO=new ApplicantDTO();
-                        applicantDTO.setId(comment.getApplicant().getId());
-                        applicantDTO.setName(comment.getApplicant().getName());
-                        applicantDTO.setSurname(comment.getApplicant().getSurname());
-                        applicantDTO.setEmail(comment.getApplicant().getEmail());
-                        ComponentDTO commentDTO=new CommentDTO(comment.getId(), comment.getDate(), comment.getText(),applicantDTO);
-
-                        
-                        contenitoreThread.add(commentDTO);
-
-                        contenitoreThread.add(contenitoreRisposte);
-
-                        //COSTRUISCO LA STRUTTURA CON LE SUE RISPOSTE
-                        List<Comment> answerList = comment.getAnswerList();
-                        
-                        for (Comment answer : answerList) {
-                        	ApplicantDTO appDTO = new ApplicantDTO();
-                            appDTO.setId(answer.getApplicant().getId());
-                            appDTO.setName(answer.getApplicant().getName());
-                            appDTO.setSurname(answer.getApplicant().getSurname());
-                            appDTO.setEmail(answer.getApplicant().getEmail());
-                            
-                        	CommentDTO answerDTO = new CommentDTO(answer.getId(), answer.getDate(),
-                        			answer.getText(), appDTO);
-                        	
-                        	contenitoreRisposte.add(answerDTO);
-    					}
-                        
-                        
-                    }
-                }
-
-                postDTO.setCommentList(sezioneCommenti);
-				*/
+                } 
 				List<SkillDTO> skillDTOList = new ArrayList<>();
 				
 				List<PostRequireSkill> postRequireSkillList = post.getPostRequireSkillList();
@@ -171,6 +132,20 @@ public class PostApplicantImpl implements GetPostStrategy{
 				offerorDTO.setCompany(companyDTO);				
 				
 				postDTO.setCreatedBy(offerorDTO);
+				
+				List<Attached> attachedList = attachedService.findByPostIdAndType(post.getId(), "image");
+				List<AttachedDTO> attachedDTOList = new ArrayList<>();
+				AttachedDTO attachedDTO;
+				for(Attached att : attachedList) {
+					attachedDTO = new AttachedDTO();
+					attachedDTO.setFilename(att.getName());
+					attachedDTO.setId(att.getId());
+					attachedDTO.setType(att.getType());
+					
+					attachedDTOList.add(attachedDTO);
+				}
+				
+				postDTO.setAttachedDTOList(attachedDTOList);
 			
 				//TODO: VERIFICARE il json document
 				JSONParser parser = new JSONParser();

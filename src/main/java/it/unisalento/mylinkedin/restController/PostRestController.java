@@ -52,6 +52,7 @@ import it.unisalento.mylinkedin.dto.UserDTO;
 import it.unisalento.mylinkedin.dto.CommentDTO;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
 import it.unisalento.mylinkedin.exceptions.UserNotFoundException;
+import it.unisalento.mylinkedin.iService.IAttachedService;
 import it.unisalento.mylinkedin.iService.ICommentService;
 import it.unisalento.mylinkedin.iService.ICompanyService;
 import it.unisalento.mylinkedin.iService.IPostService;
@@ -87,6 +88,9 @@ public class PostRestController {
 	@Autowired
 	ICommentService commentService;
 	
+	@Autowired
+	IAttachedService attachedService;
+	
 	@RequestMapping(value="/hideShowPost", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PostDTO> hideShowPost(@RequestBody @Valid PostDTO postDTO) throws OperationFailedException{
 		Post post = postService.findById(postDTO.getId());
@@ -108,7 +112,7 @@ public class PostRestController {
 		else {
 			 postContext = new PostContext(new PostApplicantImpl());
 		}
-		List<PostDTO> list = postContext.getAllPost(postService, userService);
+		List<PostDTO> list = postContext.getAllPost(postService, userService, attachedService);
 		return list;
 	}
 	

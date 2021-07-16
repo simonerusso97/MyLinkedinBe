@@ -8,6 +8,7 @@ import org.json.simple.parser.ParseException;
 
 import it.unisalento.mylinkedin.dto.PostDTO;
 import it.unisalento.mylinkedin.exceptions.UserNotFoundException;
+import it.unisalento.mylinkedin.iService.IAttachedService;
 import it.unisalento.mylinkedin.iService.IPostService;
 import it.unisalento.mylinkedin.iService.IUserService;
 
@@ -18,7 +19,7 @@ public class PostContext {
 		this.getPostStrategy = getPostStrategy;
 	}
 	
-	public List<PostDTO> getAllPost(IPostService postService, IUserService userService) throws FileNotFoundException, IOException, ParseException, UserNotFoundException{
-		return getPostStrategy.getAllPost(postService, userService);
+	public List<PostDTO> getAllPost(IPostService postService, IUserService userService, IAttachedService attachedService) throws FileNotFoundException, IOException, ParseException, UserNotFoundException{
+		return getPostStrategy.getAllPost(postService, userService, attachedService);
 	}
 }
