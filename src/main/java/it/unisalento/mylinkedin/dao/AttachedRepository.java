@@ -13,4 +13,6 @@ public interface AttachedRepository extends JpaRepository<Attached, Integer> {
 
 	List<Attached> findByPostIdAndType(int id, String type);
 
+	List<Attached> findByPostId(int id);
+
 }

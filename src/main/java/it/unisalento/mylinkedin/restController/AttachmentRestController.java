@@ -10,8 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.apache.tomcat.util.http.parser.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +34,7 @@ import it.unisalento.mylinkedin.dto.AttachedDTO;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
 import it.unisalento.mylinkedin.iService.IAttachedService;
 import it.unisalento.mylinkedin.iService.IPostService;
+import it.unisalento.mylinkedin.serviceImpl.AttachedService;
 
 @RestController
 @RequestMapping("/api/attachment")
@@ -42,7 +46,7 @@ public class AttachmentRestController {
 	@Autowired
 	IPostService postService;
 
-	private static String UPLOADED_FOLDER = "/Users/simonerusso/Documents/GitHub/MyLinkedin/uploads/";
+	private static String UPLOADED_FOLDER = "/Users/simonerusso/Documents/GitHub/MyLinkedinBe/uploads/";
 	
 	@PostMapping("/uploadFile/{idPost}/{type}")
 	public ResponseEntity<?> upload(@PathVariable("idPost") int idPost, @PathVariable("type") String type, @RequestAttribute("file") MultipartFile file) throws IOException, OperationFailedException {
@@ -59,13 +63,33 @@ public class AttachmentRestController {
 	}
 	
 
-	/*@RequestMapping(value="/getFile/{id}", method = RequestMethod.GET)
-	public MultipartFile getFile(@PathVariable("id") int id) throws IOException, OperationFailedException {
+	@RequestMapping(value="/getAttached/{id}", method = RequestMethod.GET)
+	public List<AttachedDTO> getAttached(@PathVariable("id") int id) throws IOException, OperationFailedException {
+		 //TODO:controllare che funzioni
+		String base64;
+		List<Attached> attachedList = attchedService.findByIdPost(id);
+		List<AttachedDTO> attachedDTOList = new ArrayList<>();
+		AttachedDTO attachedDTO;
+		for (Attached a : attachedList) {
+			Attached attached = attchedService.findById(a.getId());
+			base64 = DatatypeConverter.printBase64Binary(Files.readAllBytes(
+					Paths.get(UPLOADED_FOLDER+attached.getName())));
+			
+			attachedDTO = new AttachedDTO();
+			attachedDTO.setId(attached.getId());
+			attachedDTO.setFilename(attached.getName());
+			attachedDTO.setType(attached.getType());
+			attachedDTO.setCode(base64);
+			
+			attachedDTOList.add(attachedDTO);
+		}
+		return attachedDTOList;
+	}
 		
-		Attached attached = attchedService.findById(id);
+		//Path path = Paths.get(new File(UPLOADED_FOLDER+attached.getName()).getPath());
 		
-		Path path = Paths.get(new File(UPLOADED_FOLDER+attached.getName()).getPath());
-		byte[] bytes = Files.readAllBytes(path);
+		
+		/*byte[] bytes = Files.readAllBytes(path);
 		//MultipartFile file;
 		//bytes.
 
@@ -100,5 +124,7 @@ public class AttachmentRestController {
 		UUID uuid = UUID.randomUUID();
 		return uuid.toString();
 	}
+	
+	
 	
 }

@@ -7,6 +7,7 @@ public class AttachedDTO {
 	int id;
 	String filename;
 	String type;
+	String code;
 	
 	public int getId() {
 		return id;
@@ -31,6 +32,16 @@ public class AttachedDTO {
 	public void setType(String type) {
 		this.type = type;
 	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+	
+	
 
 	
 }

@@ -32,4 +32,9 @@ public class AttachedService implements IAttachedService {
 		return attachedRepository.findById(id).orElseThrow(() -> new OperationFailedException());	
 	}
 
+	@Override
+	public List<Attached> findByIdPost(int id) {
+		return attachedRepository.findByPostId(id);
+	}
+
 }

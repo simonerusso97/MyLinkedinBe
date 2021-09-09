@@ -14,4 +14,6 @@ public interface IAttachedService {
 
 	Attached findById(int id) throws OperationFailedException;
 
+	List<Attached> findByIdPost(int id);
+
 }

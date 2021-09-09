@@ -46,7 +46,7 @@ public class StructureRestController {
 		return new ResponseEntity<StructureDTO>(HttpStatus.OK);
 	}
 	
-	@PostMapping(value="/update", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value="/update", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<StructureDTO> update(@RequestBody @Valid StructureDTO structureDTO) throws OperationFailedException{
 		boolean contained;
 		List<StructureHasAttribute> structureHasAttributeList = new ArrayList<>();
