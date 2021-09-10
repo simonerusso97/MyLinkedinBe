@@ -151,10 +151,10 @@ public class UserRestController {
 		return new ResponseEntity<ApplicantDTO>(HttpStatus.OK);
 	}
 	
-	@RequestMapping(value="/login",  method=RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE , consumes = MediaType.APPLICATION_JSON_VALUE)
-	public UserDTO Login(@RequestBody @Valid UserDTO userDTO) throws UserNotFoundException, FileNotFoundException, IOException, ParseException  {
+	@RequestMapping(value="/login/{email}/{pwd}",  method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+	public UserDTO Login(@PathVariable("email") String email, @PathVariable("pwd") String pwd) throws UserNotFoundException, FileNotFoundException, IOException, ParseException  {
 		User user=new User();
-		user=userService.findByEmailAndPassword(userDTO.getEmail(),userDTO.getPassword());
+		user=userService.findByEmailAndPassword(email, pwd);
 		LoginContext loginContext = null;
 
 		if(user.getClass() == Applicant.class) {
