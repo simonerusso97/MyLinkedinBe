@@ -114,6 +114,47 @@ public class UserRestController {
 
 	}
 
+	@RequestMapping(value="/getAllUser", method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	private List<RegularDTO> getAllRegular(){
+		List<Regular> regularList = new ArrayList<>();
+		regularList = userService.findAllRegularEnabled();
+		List<RegularDTO> regularDTOList = new ArrayList<>();
+		
+		for (Regular regular : regularList) {
+			RegularDTO regularDTO = new RegularDTO();
+			regularDTO.setAddress(regular.getAddress());
+			regularDTO.setBanned(regular.isBanned());
+			regularDTO.setBirthDate(regular.getBirthDate());
+			regularDTO.setDegree(regular.getDegree());
+			regularDTO.setDisabled(regular.isDisabled());
+			regularDTO.setEmail(regular.getEmail());
+			regularDTO.setId(regular.getId());
+			regularDTO.setName(regular.getName());
+			regularDTO.setSurname(regular.getSurname());
+			
+			regularDTOList.add(regularDTO);
+		}
+		
+		return regularDTOList;
+	}
 	
+	@RequestMapping(value = "/banUnban", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
+	private ResponseEntity<RegularDTO> banUnbanRegularUser(@RequestBody @Valid RegularDTO regularDTO) throws OperationFailedException, UserNotFoundException{
+		try {
+			Regular regular = userService.findById(regularDTO.getId());
+			regular.setBanned(regularDTO.isBanned());
+			userService.updateRegularUser(regular);
+			}catch (Exception e) {
+				if(e.getClass() == OperationFailedException.class) {
+					return new ResponseEntity<RegularDTO>(HttpStatus.NO_CONTENT);
+				}
+				else if(e.getClass() == UserNotFoundException.class) {
+					return new ResponseEntity<RegularDTO>(HttpStatus.NOT_FOUND);
+
+				}
+			}
+		return new ResponseEntity<RegularDTO>(HttpStatus.OK);
+
+	}
 	
 }
