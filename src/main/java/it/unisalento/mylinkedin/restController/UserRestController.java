@@ -223,4 +223,45 @@ public class UserRestController {
 		return new ResponseEntity<OfferorDTO>(HttpStatus.CREATED);
 			
 		}
+	
+	
+	@RequestMapping(value="/findOfferorNotVerifed/{idCompany}", method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	private List<OfferorDTO> findOfferorNotVerifed(@PathVariable("idCompany") int idCompany){
+		
+		List<Offeror> offerorList = userService.findByIdCompanyAndVerified(idCompany, false);
+		List<OfferorDTO> offerorDTOList = new ArrayList<>();
+
+		for (Offeror offeror : offerorList) {
+			OfferorDTO offerorDTO = new OfferorDTO();
+			offerorDTO.setId(offeror.getId());
+			offerorDTO.setName(offeror.getName());
+			offerorDTO.setSurname(offeror.getSurname());
+			offerorDTO.setEmail(offeror.getEmail());
+			offerorDTO.setAddress(offeror.getAddress());
+			offerorDTO.setPosition(offeror.getPosition());
+			
+			offerorDTOList.add(offerorDTO);
+			}
+		return offerorDTOList;
+	}
+	
+	@RequestMapping(value = "/acceptOfferor", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
+	private ResponseEntity<OfferorDTO> acceptOfferor(@RequestBody @Valid OfferorDTO offerorDTO){
+		try {
+			Offeror offeror = (Offeror) userService.findById(offerorDTO.getId());
+			offeror.setVerified(true);
+			userService.saveOfferor(offeror);
+			}
+		catch (Exception e) {
+				if(e.getClass() == OperationFailedException.class) {
+					return new ResponseEntity<OfferorDTO>(HttpStatus.NO_CONTENT);
+				}
+				else if(e.getClass() == UserNotFoundException.class) {
+					return new ResponseEntity<OfferorDTO>(HttpStatus.NOT_FOUND);
+
+				}
+			}
+		return new ResponseEntity<OfferorDTO>(HttpStatus.OK);
+	}
+	
 }
