@@ -11,9 +11,12 @@ import it.unisalento.mylinkedin.domain.entity.Applicant;
 import it.unisalento.mylinkedin.domain.entity.Offeror;
 import it.unisalento.mylinkedin.domain.entity.Regular;
 import it.unisalento.mylinkedin.domain.entity.User;
+import it.unisalento.mylinkedin.dto.ApplicantDTO;
+import it.unisalento.mylinkedin.dto.OfferorDTO;
 import it.unisalento.mylinkedin.dto.RegularDTO;
 import it.unisalento.mylinkedin.dto.UserDTO;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
+import it.unisalento.mylinkedin.exceptions.UserAlreadyExist;
 import it.unisalento.mylinkedin.exceptions.UserNotFoundException;
 import it.unisalento.mylinkedin.iService.ICompanyService;
 import it.unisalento.mylinkedin.iService.IPostService;
@@ -100,16 +103,16 @@ public class UserRestController {
 			Regular regular = userService.findById(regularDTO.getId());
 			regular.setDisabled(regularDTO.isDisabled());
 			userService.updateRegularUser(regular);
-		}catch (Exception e) {
+			}
+		catch (Exception e) {
 			if(e.getClass() == OperationFailedException.class) {
 				return new ResponseEntity<RegularDTO>(HttpStatus.NO_CONTENT);
 
 			}
 			else if(e.getClass() == UserNotFoundException.class) {
 				return new ResponseEntity<RegularDTO>(HttpStatus.NOT_FOUND);
-
+				}
 			}
-		}
 		return new ResponseEntity<RegularDTO>(HttpStatus.OK);
 
 	}
@@ -139,12 +142,13 @@ public class UserRestController {
 	}
 	
 	@RequestMapping(value = "/banUnban", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
-	private ResponseEntity<RegularDTO> banUnbanRegularUser(@RequestBody @Valid RegularDTO regularDTO) throws OperationFailedException, UserNotFoundException{
+	private ResponseEntity<RegularDTO> banUnbanRegularUser(@RequestBody @Valid RegularDTO regularDTO){
 		try {
 			Regular regular = userService.findById(regularDTO.getId());
 			regular.setBanned(regularDTO.isBanned());
 			userService.updateRegularUser(regular);
-			}catch (Exception e) {
+			}
+		catch (Exception e) {
 				if(e.getClass() == OperationFailedException.class) {
 					return new ResponseEntity<RegularDTO>(HttpStatus.NO_CONTENT);
 				}
@@ -157,4 +161,66 @@ public class UserRestController {
 
 	}
 	
+	@RequestMapping(value="/applicatSignUp", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	private ResponseEntity<ApplicantDTO> registrationApplicant(@RequestBody @Valid ApplicantDTO applicantDTO){
+		try {
+			Applicant applicant = new Applicant();
+
+			userService.findByEmail(applicantDTO.getEmail().toLowerCase());
+
+			applicant.setAddress(applicantDTO.getAddress());
+			applicant.setBanned(applicantDTO.isBanned());
+			applicant.setBirthDate(applicantDTO.getBirthDate());
+			applicant.setDegree(applicantDTO.getDegree());
+			applicant.setEmail(applicantDTO.getEmail().toLowerCase());
+			applicant.setName(applicantDTO.getName());
+			applicant.setPassword(applicantDTO.getPassword());
+			applicant.setSurname(applicantDTO.getSurname());
+			applicant.setDisabled(applicantDTO.isDisabled());
+			
+			userService.saveApplicant(applicant);
+			}
+		catch (Exception e) {
+				if(e.getClass() == OperationFailedException.class) {
+					return new ResponseEntity<ApplicantDTO>(HttpStatus.NO_CONTENT);
+				}
+				else if(e.getClass() == UserAlreadyExist.class) {
+					return new ResponseEntity<ApplicantDTO>(HttpStatus.NO_CONTENT);
+				}
+			}
+		return new ResponseEntity<ApplicantDTO>(HttpStatus.CREATED);
+	}
+	
+	@RequestMapping(value="/offerorSignUp", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	private ResponseEntity<OfferorDTO> registrationOfferor(@RequestBody @Valid OfferorDTO offerorDTO){
+		try {
+			Offeror offeror = new Offeror();
+			userService.findByEmail(offerorDTO.getEmail().toLowerCase());
+			
+			offeror.setAddress(offerorDTO.getAddress());
+			offeror.setBanned(offerorDTO.isBanned());
+			offeror.setBirthDate(offerorDTO.getBirthDate());
+			offeror.setDegree(offerorDTO.getDegree());
+			offeror.setEmail(offerorDTO.getEmail().toLowerCase());
+			offeror.setName(offerorDTO.getName());
+			offeror.setPassword(offerorDTO.getPassword());
+			offeror.setSurname(offerorDTO.getSurname());
+			offeror.setDisabled(offerorDTO.isDisabled());
+			offeror.setPosition(offerorDTO.getPosition());
+			offeror.setVerified(offerorDTO.isVerified());
+			
+			offeror.setCompany(companyService.findById(offerorDTO.getCompany().getId()));
+			userService.saveOfferor(offeror);
+			}
+		catch (Exception e) {
+			if(e.getClass() == OperationFailedException.class) {
+				return new ResponseEntity<OfferorDTO>(HttpStatus.NO_CONTENT);
+			}
+			else if(e.getClass() == UserAlreadyExist.class) {
+				return new ResponseEntity<OfferorDTO>(HttpStatus.NO_CONTENT);
+			}
+		}
+		return new ResponseEntity<OfferorDTO>(HttpStatus.CREATED);
+			
+		}
 }
