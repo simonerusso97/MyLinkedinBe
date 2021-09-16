@@ -11,8 +11,6 @@ public interface IPostService {
 
 	Post findById(int id) throws OperationFailedException;
 
-	void updatePost(Post post) throws OperationFailedException;
-
 	List<Post> findAll();
 
 	int getLastJsonDucumentIndex();

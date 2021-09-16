@@ -32,14 +32,6 @@ public class PostServiceImpl implements IPostService{
 		return postRepository.findById(id).orElseThrow(() -> new OperationFailedException());
 	}
 
-	@Override
-	public void updatePost(Post post) throws OperationFailedException{
-		try {
-			postRepository.save(post);
-		} catch (Exception e) {
-			throw new OperationFailedException();
-		}
-	}
 
 	@Override
 	public List<Post> findAll() {
