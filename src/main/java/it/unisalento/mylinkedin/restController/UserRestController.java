@@ -106,7 +106,7 @@ public class UserRestController {
 			}
 		catch (Exception e) {
 			if(e.getClass() == OperationFailedException.class) {
-				return new ResponseEntity<RegularDTO>(HttpStatus.NO_CONTENT);
+				return new ResponseEntity<RegularDTO>(HttpStatus.CONFLICT);
 
 			}
 			else if(e.getClass() == UserNotFoundException.class) {
@@ -150,7 +150,7 @@ public class UserRestController {
 			}
 		catch (Exception e) {
 				if(e.getClass() == OperationFailedException.class) {
-					return new ResponseEntity<RegularDTO>(HttpStatus.NO_CONTENT);
+					return new ResponseEntity<RegularDTO>(HttpStatus.CONFLICT);
 				}
 				else if(e.getClass() == UserNotFoundException.class) {
 					return new ResponseEntity<RegularDTO>(HttpStatus.NOT_FOUND);
@@ -182,10 +182,10 @@ public class UserRestController {
 			}
 		catch (Exception e) {
 				if(e.getClass() == OperationFailedException.class) {
-					return new ResponseEntity<ApplicantDTO>(HttpStatus.NO_CONTENT);
+					return new ResponseEntity<ApplicantDTO>(HttpStatus.METHOD_NOT_ALLOWED);
 				}
 				else if(e.getClass() == UserAlreadyExist.class) {
-					return new ResponseEntity<ApplicantDTO>(HttpStatus.NO_CONTENT);
+					return new ResponseEntity<ApplicantDTO>(HttpStatus.CONFLICT);
 				}
 			}
 		return new ResponseEntity<ApplicantDTO>(HttpStatus.CREATED);
@@ -214,10 +214,10 @@ public class UserRestController {
 			}
 		catch (Exception e) {
 			if(e.getClass() == OperationFailedException.class) {
-				return new ResponseEntity<OfferorDTO>(HttpStatus.NO_CONTENT);
+				return new ResponseEntity<OfferorDTO>(HttpStatus.METHOD_NOT_ALLOWED);
 			}
 			else if(e.getClass() == UserAlreadyExist.class) {
-				return new ResponseEntity<OfferorDTO>(HttpStatus.NO_CONTENT);
+				return new ResponseEntity<OfferorDTO>(HttpStatus.CONFLICT);
 			}
 		}
 		return new ResponseEntity<OfferorDTO>(HttpStatus.CREATED);
@@ -254,7 +254,7 @@ public class UserRestController {
 			}
 		catch (Exception e) {
 				if(e.getClass() == OperationFailedException.class) {
-					return new ResponseEntity<OfferorDTO>(HttpStatus.NO_CONTENT);
+					return new ResponseEntity<OfferorDTO>(HttpStatus.METHOD_NOT_ALLOWED);
 				}
 				else if(e.getClass() == UserNotFoundException.class) {
 					return new ResponseEntity<OfferorDTO>(HttpStatus.NOT_FOUND);

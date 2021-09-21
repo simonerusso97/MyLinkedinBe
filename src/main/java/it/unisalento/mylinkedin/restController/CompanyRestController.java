@@ -78,10 +78,10 @@ public class CompanyRestController {
 			}
 		catch (Exception e) {
 			if(e.getClass() == OperationFailedException.class) {
-				return new ResponseEntity<CompanyDTO>(HttpStatus.NO_CONTENT);
+				return new ResponseEntity<CompanyDTO>(HttpStatus.UNPROCESSABLE_ENTITY);
 			}
 			else if(e.getClass() == UserAlreadyExist.class) {
-				return new ResponseEntity<CompanyDTO>(HttpStatus.NO_CONTENT);
+				return new ResponseEntity<CompanyDTO>(HttpStatus.CONFLICT);
 			}
 		}
 		return new ResponseEntity<CompanyDTO>(HttpStatus.CREATED);

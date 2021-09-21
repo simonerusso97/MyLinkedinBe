@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import it.unisalento.mylinkedin.dao.StructureRepository;
 import it.unisalento.mylinkedin.domain.entity.Structure;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
+import it.unisalento.mylinkedin.exceptions.StructureNotFound;
 import it.unisalento.mylinkedin.iService.IStructureService;
 
 @Service
@@ -20,8 +21,8 @@ public class StructureServiceImpl implements IStructureService {
 	
 	@Override
 	@Transactional(rollbackOn = OperationFailedException.class)
-	public void delete(int id) throws OperationFailedException {
-		Structure structure = structureRepository.findById(id).orElseThrow(()->new OperationFailedException());
+	public void delete(int id) throws StructureNotFound {
+		Structure structure = structureRepository.findById(id).orElseThrow(()->new StructureNotFound());
 		structureRepository.delete(structure);
 	}
 
@@ -33,11 +34,12 @@ public class StructureServiceImpl implements IStructureService {
 
 	@Override
 	@Transactional
-	public Structure getById(int id) throws OperationFailedException{
-		return structureRepository.findById(id).orElseThrow(()->new OperationFailedException());
+	public Structure getById(int id) throws StructureNotFound{
+		return structureRepository.findById(id).orElseThrow(()->new StructureNotFound());
 	}
 
 	@Override
+	@Transactional
 	public Structure save(Structure structure) throws OperationFailedException {
 		try {
 			return structureRepository.save(structure);

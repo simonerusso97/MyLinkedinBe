@@ -75,7 +75,7 @@ public class PostRestController {
 	}
 	
 	@RequestMapping(value="/changePostVisibility", method = RequestMethod.PATCH, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PostDTO> hideShowPost(@RequestBody @Valid PostDTO postDTO) throws OperationFailedException{
+	public ResponseEntity<PostDTO> hideShowPost(@RequestBody @Valid PostDTO postDTO){
 		
 		try {
 			Post post = postService.findById(postDTO.getId());
@@ -83,7 +83,7 @@ public class PostRestController {
 			postService.save(post);
 		}catch (Exception e) {
 			if(e.getClass()==OperationFailedException.class) {
-				return new ResponseEntity<PostDTO>(HttpStatus.NO_CONTENT);
+				return new ResponseEntity<PostDTO>(HttpStatus.NOT_FOUND);
 			}
 		}		
 		return new ResponseEntity<PostDTO>(HttpStatus.OK);

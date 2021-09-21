@@ -14,7 +14,7 @@ public interface ICompanyService {
 
 	Company findById(int id) throws OperationFailedException;
 
-	void findByName(String name) throws OperationFailedException, UserAlreadyExist;
+	void findByName(String name) throws UserAlreadyExist;
 
 	List<Company> findAll();
 	

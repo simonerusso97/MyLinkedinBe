@@ -42,7 +42,7 @@ public class CompanyServiceImpl implements ICompanyService {
 	}
 
 	@Override
-	public void findByName(String name) throws OperationFailedException, UserAlreadyExist {
+	public void findByName(String name) throws UserAlreadyExist {
 		if( companyRepository.findByName(name) != null) {
 			throw new UserAlreadyExist();
 		}

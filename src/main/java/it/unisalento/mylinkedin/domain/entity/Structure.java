@@ -25,10 +25,11 @@ public class Structure {
 	String description;
 	String userType;
 	
-	@OneToMany(mappedBy = "structure", targetEntity = Post.class, cascade = CascadeType.ALL , fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "structure", targetEntity = Post.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	List<Post> postList;
 
-	@OneToMany(mappedBy = "structure", targetEntity = StructureHasAttribute.class, cascade = CascadeType.ALL , fetch = FetchType.LAZY)
+	// TODO: CHIEDERE AIUTO
+	@OneToMany(mappedBy = "structure", targetEntity = StructureHasAttribute.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	List<StructureHasAttribute> structureHasAttributeList;
 
 	public int getId() {

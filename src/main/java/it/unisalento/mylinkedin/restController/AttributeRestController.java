@@ -3,11 +3,14 @@ package it.unisalento.mylinkedin.restController;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -53,6 +56,9 @@ public class AttributeRestController {
 			if(e.getClass()==AttributeNotFoundException.class) {
 				return new ResponseEntity<AttributeDTO>(HttpStatus.NO_CONTENT);
 			}
+			if(e.getClass()==OperationFailedException.class) {
+				return new ResponseEntity<AttributeDTO>(HttpStatus.METHOD_NOT_ALLOWED);
+			}
 		}
 		
 		return new ResponseEntity<AttributeDTO>(HttpStatus.ACCEPTED);
@@ -73,11 +79,22 @@ public class AttributeRestController {
 				return new ResponseEntity<AttributeDTO>(HttpStatus.NOT_FOUND);
 			}
 			if(e.getClass() == OperationFailedException.class) {
-				return new ResponseEntity<AttributeDTO>(HttpStatus.NO_CONTENT);
+				return new ResponseEntity<AttributeDTO>(HttpStatus.METHOD_NOT_ALLOWED);
 			}
 
 		}
 		return new ResponseEntity<AttributeDTO>(HttpStatus.OK);
+	}
+	
+	@PostMapping(value="/createAttribute", consumes=MediaType.APPLICATION_JSON_VALUE)
+	public AttributeDTO createNewAttribute(@RequestBody @Valid AttributeDTO attributeDTO) throws OperationFailedException{
+		
+		Attribute attribute=new Attribute();
+		attribute.setName(attributeDTO.getName());
+		attribute.setType(attributeDTO.getType());
+		attribute.setDeletable(true);
+		attributeDTO.setId(attributeService.save(attribute).getId());
+		return attributeDTO;
 	}
 	
 }
