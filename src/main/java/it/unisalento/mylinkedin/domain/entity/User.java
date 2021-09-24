@@ -35,6 +35,7 @@ public User() {}
 	String email;
 	Date birthDate;
 	String password;
+	
 	@OneToMany(mappedBy = "sendingUser", targetEntity = Message.class, cascade = CascadeType.ALL , fetch = FetchType.LAZY)
 	List<Message> sentMessageList; 
 	@OneToMany(mappedBy = "receivingUser", targetEntity = Message.class, cascade = CascadeType.ALL , fetch = FetchType.LAZY)

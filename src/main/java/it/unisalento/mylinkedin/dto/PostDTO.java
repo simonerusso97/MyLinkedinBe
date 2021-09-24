@@ -11,7 +11,6 @@ public class PostDTO {
 	String name;
 	StructureDTO structure;
 	List<JsonDocumentDTO> jsonDocument;
-	List<RegularDTO> interestedUserList;
 	List<SkillDTO> skillList;
 	RegularDTO createdBy;
 	List<CommentDTO> commentList;
@@ -65,15 +64,6 @@ public class PostDTO {
 
 	public void setJsonDocument(List<JsonDocumentDTO> jsonDocument) {
 		this.jsonDocument = jsonDocument;
-	}
-
-
-	public List<RegularDTO> getInterestedUserList() {
-		return interestedUserList;
-	}
-
-	public void setInterestedUserList(List<RegularDTO> interestedUserList) {
-		this.interestedUserList = interestedUserList;
 	}
 
 	public List<SkillDTO> getSkillList() {

@@ -9,6 +9,8 @@ public class CommentDTO {
 	Date date;
 	String text;
 	ApplicantDTO applicant;
+	
+	//TODO: forse non serve
 	List<CommentDTO> answerList;
 	
 	public CommentDTO() {}

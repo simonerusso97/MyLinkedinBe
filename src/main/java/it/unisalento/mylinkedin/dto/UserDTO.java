@@ -11,7 +11,6 @@ public class UserDTO {
 	String email;
 	Date birthDate;
 	String password;
-	List<MessageDTO> messageList;
 	String type;
 	
 	
@@ -62,13 +61,4 @@ public class UserDTO {
 	public void setType(String type) {
 		this.type = type;
 	}
-
-	public List<MessageDTO> getMessageList() {
-		return messageList;
-	}
-
-	public void setMessageList(List<MessageDTO> messageList) {
-		this.messageList = messageList;
-	}
-	
 }

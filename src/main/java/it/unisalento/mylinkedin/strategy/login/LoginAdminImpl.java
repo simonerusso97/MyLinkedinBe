@@ -26,32 +26,7 @@ public class LoginAdminImpl implements LoginStrategy{
 		adminDTO.setEmail(admin.getEmail());
 		adminDTO.setBirthDate(admin.getBirthDate());
 		adminDTO.setPassword(admin.getPassword());
-		
-		List<Message> messageList = userService.findAllMessages(admin.getId());
-		List<MessageDTO> messageDTOList = new ArrayList<>();
-		for (Message message : messageList) {
-			MessageDTO messageDTO = new MessageDTO();
-			messageDTO.setId(message.getId());
-			messageDTO.setDate(message.getDate());
-            messageDTO.setText(message.getText());
-			UserDTO userDTO = new UserDTO();
-			userDTO.setId(message.getReceivingUser().getId());
-			userDTO.setName(message.getReceivingUser().getName());
-			userDTO.setSurname(message.getReceivingUser().getSurname());
-			userDTO.setEmail(message.getReceivingUser().getEmail());
-			messageDTO.setReceivingUser(userDTO);
-			userDTO = new UserDTO();
-			userDTO.setId(message.getSendingUser().getId());
-			userDTO.setName(message.getSendingUser().getName());
-			userDTO.setSurname(message.getSendingUser().getSurname());
-			userDTO.setEmail(message.getSendingUser().getEmail());
-			messageDTO.setSendingUser(userDTO);
-			
-			messageDTOList.add(messageDTO);
-		}
-		
-		adminDTO.setMessageList(messageDTOList);
-		
+				
 		return adminDTO;		
 	}
 

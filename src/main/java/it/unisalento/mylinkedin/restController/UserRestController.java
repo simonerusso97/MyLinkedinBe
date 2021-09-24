@@ -76,6 +76,7 @@ public class UserRestController {
 		return loginContext.login(user, userService);
 	}
 	
+	
 	@RequestMapping(value="/findAllRegistrationRequest",  method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
 	public List<RegularDTO> findAllRegistrationRequest(){
 		List<Regular> regularList = userService.getAllDisabledRegularUser();
@@ -100,13 +101,14 @@ public class UserRestController {
 		
 		return list;
 	}
+	
 
 	@RequestMapping(value="/acceptUser",  method=RequestMethod.PATCH, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<RegularDTO> acceptUser(@RequestBody @Valid RegularDTO regularDTO){
 		try {
 			Regular regular = userService.findById(regularDTO.getId());
 			regular.setDisabled(regularDTO.isDisabled());
-			userService.updateRegularUser(regular);
+			userService.save(regular);
 			}
 		catch (Exception e) {
 			if(e.getClass() == OperationFailedException.class) {

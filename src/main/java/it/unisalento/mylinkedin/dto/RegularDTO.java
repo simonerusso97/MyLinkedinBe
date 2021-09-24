@@ -12,7 +12,7 @@ public class RegularDTO extends UserDTO{
 	String address;
 	boolean banned;
 	boolean disabled;
-	List<PostDTO> interestedPostList;
+	//List<PostDTO> interestedPostList;
 	String degree;	
 	
 	public String getAddress() {
@@ -47,11 +47,4 @@ public class RegularDTO extends UserDTO{
 		this.degree = degree;
 	}
 
-	public List<PostDTO> getInterestedPostList() {
-		return interestedPostList;
-	}
-
-	public void setInterestedPostList(List<PostDTO> interestedList) {
-		this.interestedPostList = interestedList;
-	}
 }

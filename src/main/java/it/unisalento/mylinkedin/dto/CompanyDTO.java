@@ -9,7 +9,6 @@ public class CompanyDTO {
 	String password;
 	String sector;
 	String description;
-	List<OfferorDTO> offerorList;
 	
 	public CompanyDTO() {}
 	
@@ -42,11 +41,5 @@ public class CompanyDTO {
 	}
 	public void setDescription(String description) {
 		this.description = description;
-	}
-	public List<OfferorDTO> getOfferorList() {
-		return offerorList;
-	}
-	public void setOfferorList(List<OfferorDTO> offerorList) {
-		this.offerorList = offerorList;
 	}
 }
