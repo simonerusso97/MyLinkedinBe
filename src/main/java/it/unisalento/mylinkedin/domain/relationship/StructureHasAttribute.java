@@ -1,5 +1,6 @@
 package it.unisalento.mylinkedin.domain.relationship;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,6 +18,7 @@ public class StructureHasAttribute {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	int id;
+	@Column(columnDefinition = "bit(1) default 1")
 	boolean deletable;
 	
 	@ManyToOne

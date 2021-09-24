@@ -42,7 +42,7 @@ public class StructureRestController {
 	IAttributeService attributeService;
 	
 	@RequestMapping(value="/getAll", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
-	public List<StructureDTO> getAllStructure(){
+	public List<StructureDTO> getAllStructure() throws OperationFailedException{
 			
 			List<StructureDTO> structureDTOList = new ArrayList<>();
 			List<Structure> structureList = structureService.getAll(); 
@@ -77,95 +77,98 @@ public class StructureRestController {
 	}
 	
 	@RequestMapping(value="/delete/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<StructureDTO> delete(@PathVariable int id){
-		try {
-			structureService.delete(id);
-		}catch (Exception e) {
-			if(e.getClass() == StructureNotFound.class) {
-				return new ResponseEntity<StructureDTO>(HttpStatus.NOT_FOUND);
-			}
-			else {
-				return new ResponseEntity<StructureDTO>(HttpStatus.NO_CONTENT);
-			}
-		}
+	public ResponseEntity<StructureDTO> delete(@PathVariable int id) throws OperationFailedException, StructureNotFound{
+		
+		structureService.delete(id);
+		
 		return new ResponseEntity<StructureDTO>(HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/update", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<StructureDTO> update(@RequestBody @Valid StructureDTO structureDTO) throws OperationFailedException{
-		try {
-			List<StructureHasAttribute> structureHasAttributeList = new ArrayList<>();
+	public ResponseEntity<StructureDTO> update(@RequestBody @Valid StructureDTO structureDTO) throws StructureNotFound, OperationFailedException{
+		
+		List<StructureHasAttribute> structureHasAttributeList = new ArrayList<>();
+		
+		Structure structure = structureService.getById(structureDTO.getId());
+		structure.setName(structureDTO.getName());
+		structure.setDescription(structureDTO.getDescription());
+		structure.setUserType(structureDTO.getUserType());
+		
+		List<AttributeDTO> attributeDTOList = structureDTO.getAttributeList();
+		for (AttributeDTO attributeDTO : attributeDTOList) {
+			Attribute attribute = new Attribute();
+			attribute.setId(attributeDTO.getId());
+			attribute.setName(attributeDTO.getName());
+			attribute.setType(attributeDTO.getType());
 			
-			Structure structure = structureService.getById(structureDTO.getId());
-			structure.setName(structureDTO.getName());
-			structure.setDescription(structureDTO.getDescription());
-			structure.setUserType(structureDTO.getUserType());
+			StructureHasAttribute structureHasAttribute = new StructureHasAttribute();
+			structureHasAttribute.setAttribute(attribute);
 			
-			List<AttributeDTO> attributeDTOList = structureDTO.getAttributeList();
-			for (AttributeDTO attributeDTO : attributeDTOList) {
-				Attribute attribute = new Attribute();
-				attribute.setId(attributeDTO.getId());
-				attribute.setName(attributeDTO.getName());
-				attribute.setType(attributeDTO.getType());
-				
-				StructureHasAttribute structureHasAttribute = new StructureHasAttribute();
-				structureHasAttribute.setAttribute(attribute);
-				
-				structureHasAttribute.setStructure(structure);
-				
-				structureHasAttributeList.add(structureHasAttribute);
+			structureHasAttribute.setStructure(structure);
+			
+			structureHasAttributeList.add(structureHasAttribute);
 
-			}
-			
-			structure.setStructureHasAttributeList(structureHasAttributeList);
-			structureService.save(structure);
-		}catch (Exception e) {
-			if(e.getClass() == StructureNotFound.class) {
-				return new ResponseEntity<StructureDTO>(HttpStatus.NOT_FOUND);		
-			}
-			if(e.getClass() == OperationFailedException.class) {
-				return new ResponseEntity<StructureDTO>(HttpStatus.METHOD_NOT_ALLOWED);		
-
-			}
-			
 		}
+		
+		structure.setStructureHasAttributeList(structureHasAttributeList);
+		structureService.save(structure);
+	
 		
 		return new ResponseEntity<StructureDTO>(HttpStatus.OK);		
 	}
 	
 	@PostMapping(value="/createStructure", consumes=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Structure> createStructure(@RequestBody @Valid StructureDTO structureDTO){
-		try {
-			List<StructureHasAttribute> structureHasAttributeList = new ArrayList<>();
+	public ResponseEntity<Structure> createStructure(@RequestBody @Valid StructureDTO structureDTO) throws AttributeNotFoundException, OperationFailedException{
+		
+		List<StructureHasAttribute> structureHasAttributeList = new ArrayList<>();
+		
+		Structure structure = new Structure();
+		structure.setName(structureDTO.getName());
+		structure.setDescription(structureDTO.getDescription());
+		structure.setUserType(structureDTO.getUserType());
+		
+		for (AttributeDTO attributeDTO : structureDTO.getAttributeList()) {
+			StructureHasAttribute structureHasAttribute = new StructureHasAttribute();
 			
-			Structure structure = new Structure();
-			structure.setName(structureDTO.getName());
-			structure.setDescription(structureDTO.getDescription());
-			structure.setUserType(structureDTO.getUserType());
+			Attribute attribute = attributeService.findById(attributeDTO.getId());
+		
+			structureHasAttribute.setAttribute(attribute);
 			
-			for (AttributeDTO attributeDTO : structureDTO.getAttributeList()) {
-				StructureHasAttribute structureHasAttribute = new StructureHasAttribute();
-				
-				Attribute attribute = attributeService.findById(attributeDTO.getId());
-			
-				structureHasAttribute.setAttribute(attribute);
-				
-				structureHasAttributeList.add(structureHasAttribute);
-				structureHasAttribute.setStructure(structure);
-				attribute.getStructureHasAttributeList().add(structureHasAttribute);			
-			}
-			structure.setStructureHasAttributeList(structureHasAttributeList);;		
-			structureService.save(structure);
-		}catch (Exception e) {
-			if(e.getClass() == AttributeNotFoundException.class) {
-				return new ResponseEntity<Structure>(HttpStatus.NOT_FOUND);
-			}
-			if(e.getClass() == OperationFailedException.class) {
-				return new ResponseEntity<Structure>(HttpStatus.METHOD_NOT_ALLOWED);
-			}
+			structureHasAttributeList.add(structureHasAttribute);
+			structureHasAttribute.setStructure(structure);
+			attribute.getStructureHasAttributeList().add(structureHasAttribute);			
 		}
+		structure.setStructureHasAttributeList(structureHasAttributeList);;		
+		structureService.save(structure);
+	
 	
 		return new ResponseEntity<Structure>(HttpStatus.OK);
 		
+	}
+	
+	@RequestMapping(value="/getByType/{userType}", method = RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+	public List<StructureDTO> getByType(@PathVariable("userType") String userType){
+		List<Structure> structureList = structureService.findByUserType(userType);
+		List<StructureDTO> structureDTOList = new ArrayList<>();
+
+		for (Structure structure : structureList) {
+			StructureDTO structureDTO = new StructureDTO();
+			structureDTO.setId(structure.getId());
+			structureDTO.setName(structure.getName());
+			structureDTO.setDescription(structure.getDescription());
+			structureDTO.setUserType(structure.getUserType());
+			List<AttributeDTO> attributeDTOList = new ArrayList<>();
+			for (StructureHasAttribute structureHasAttribute : structure.getStructureHasAttributeList()) {
+				AttributeDTO attributeDTO = new AttributeDTO();
+				attributeDTO.setId(structureHasAttribute.getAttribute().getId());
+				attributeDTO.setName(structureHasAttribute.getAttribute().getName());
+				attributeDTO.setType(structureHasAttribute.getAttribute().getType());
+				
+				attributeDTOList.add(attributeDTO);
+			}
+			structureDTO.setAttributeList(attributeDTOList);		
+			structureDTOList.add(structureDTO);
+		}
+		return structureDTOList;
 	}
 }

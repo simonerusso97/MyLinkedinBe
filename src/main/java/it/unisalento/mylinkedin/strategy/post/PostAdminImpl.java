@@ -16,6 +16,7 @@ import it.unisalento.mylinkedin.dto.PostDTO;
 import it.unisalento.mylinkedin.dto.RegularDTO;
 import it.unisalento.mylinkedin.dto.SkillDTO;
 import it.unisalento.mylinkedin.dto.StructureDTO;
+import it.unisalento.mylinkedin.exceptions.OperationFailedException;
 import it.unisalento.mylinkedin.iService.IAttachedService;
 import it.unisalento.mylinkedin.iService.IPostService;
 import it.unisalento.mylinkedin.iService.IUserService;

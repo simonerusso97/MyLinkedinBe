@@ -33,7 +33,7 @@ public class AttributeRestController {
 	IAttributeService attributeService;
 	
 	@RequestMapping(value = "/findAllAttribute", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	private List<AttributeDTO> findAllAttribute(){
+	private List<AttributeDTO> findAllAttribute() throws OperationFailedException{
 		List<Attribute> attributeList = attributeService.findAllAttribute();
 		List<AttributeDTO> attributeDTOList = new ArrayList<>();
 		for (Attribute attribute : attributeList) {
@@ -48,53 +48,31 @@ public class AttributeRestController {
 	}
 	
 	@RequestMapping(value = "/deleteAttribute/{id}", method = RequestMethod.DELETE)
-	private ResponseEntity<AttributeDTO> deleteAttribure(@PathVariable("id") int id) throws AttributeNotFoundException, OperationFailedException{
-		try {
-			Attribute attribute = attributeService.findById(id);
-			attributeService.deleteAttribute(attribute);
-		}catch (Exception e) {
-			if(e.getClass()==AttributeNotFoundException.class) {
-				return new ResponseEntity<AttributeDTO>(HttpStatus.NO_CONTENT);
-			}
-			if(e.getClass()==OperationFailedException.class) {
-				return new ResponseEntity<AttributeDTO>(HttpStatus.METHOD_NOT_ALLOWED);
-			}
-		}
-		
+	private ResponseEntity<AttributeDTO> deleteAttribure(@PathVariable("id") int id) throws AttributeNotFoundException{
+		Attribute attribute = attributeService.findById(id);
+		attributeService.deleteAttribute(attribute);
 		return new ResponseEntity<AttributeDTO>(HttpStatus.ACCEPTED);
  
 	}
 	
 	@RequestMapping(value="/updateAttribute", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
-	private ResponseEntity<AttributeDTO> updateAttribute(@RequestBody AttributeDTO attributeDTO) throws AttributeNotFoundException, OperationFailedException{
-		try {
-			Attribute attribute = attributeService.findById(attributeDTO.getId());
-			attribute.setId(attributeDTO.getId());
-			attribute.setName(attributeDTO.getName());
-			attribute.setType(attributeDTO.getType());
-			attributeService.update(attribute);
-		
-		}catch (Exception e) {
-			if(e.getClass() == AttributeNotFoundException.class) {
-				return new ResponseEntity<AttributeDTO>(HttpStatus.NOT_FOUND);
-			}
-			if(e.getClass() == OperationFailedException.class) {
-				return new ResponseEntity<AttributeDTO>(HttpStatus.METHOD_NOT_ALLOWED);
-			}
-
-		}
+	private ResponseEntity<AttributeDTO> updateAttribute(@RequestBody AttributeDTO attributeDTO) throws AttributeNotFoundException{
+		Attribute attribute = attributeService.findById(attributeDTO.getId());
+		attribute.setId(attributeDTO.getId());
+		attribute.setName(attributeDTO.getName());
+		attribute.setType(attributeDTO.getType());
+		attributeService.update(attribute);
 		return new ResponseEntity<AttributeDTO>(HttpStatus.OK);
 	}
 	
 	@PostMapping(value="/createAttribute", consumes=MediaType.APPLICATION_JSON_VALUE)
-	public AttributeDTO createNewAttribute(@RequestBody @Valid AttributeDTO attributeDTO) throws OperationFailedException{
-		
+	public ResponseEntity<AttributeDTO> createNewAttribute(@RequestBody @Valid AttributeDTO attributeDTO){
 		Attribute attribute=new Attribute();
 		attribute.setName(attributeDTO.getName());
 		attribute.setType(attributeDTO.getType());
 		attribute.setDeletable(true);
-		attributeDTO.setId(attributeService.save(attribute).getId());
-		return attributeDTO;
+		attributeService.save(attribute);
+		return new ResponseEntity<AttributeDTO>(HttpStatus.CREATED);
 	}
 	
 }

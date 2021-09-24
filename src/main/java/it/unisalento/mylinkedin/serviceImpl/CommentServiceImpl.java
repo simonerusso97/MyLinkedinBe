@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import it.unisalento.mylinkedin.dao.CommentRepository;
 import it.unisalento.mylinkedin.domain.entity.Comment;
+import it.unisalento.mylinkedin.exceptions.CommentNotFoundException;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
 import it.unisalento.mylinkedin.iService.ICommentService;
 
@@ -18,7 +19,7 @@ public class CommentServiceImpl implements ICommentService {
 	
 
 	@Transactional
-	public Comment findById(int id) throws OperationFailedException {
-		return commentRepository.findById(id);
+	public Comment findById(int id) throws CommentNotFoundException {
+			return commentRepository.findById(id).orElseThrow(() -> new CommentNotFoundException());
 	}
 }

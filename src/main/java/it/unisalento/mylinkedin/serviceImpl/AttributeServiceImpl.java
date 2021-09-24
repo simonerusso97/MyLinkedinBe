@@ -18,34 +18,74 @@ public class AttributeServiceImpl implements IAttributeService {
 
 	@Autowired
 	AttributeRepository attributeRepository;
+	/*
+	 * @Override public Attribute findById(int id) throws
+	 * AttributeNotFoundException{ return
+	 * attributeRepository.findById(id).orElseThrow(() -> new
+	 * AttributeNotFoundException()); }
+	 * 
+	 * @Override public Attribute update(Attribute attribute) throws
+	 * OperationFailedException { try { return attributeRepository.save(attribute);
+	 * }catch (Exception e) { throw new OperationFailedException(); } }
+	 * 
+	 * @Override public void deleteAttribute(Attribute attribute) throws
+	 * OperationFailedException{ try { attributeRepository.delete(attribute); }catch
+	 * (Exception e) { throw new OperationFailedException(); }
+	 * 
+	 * }
+	 * 
+	 * @Override public List<Attribute> findAllAttribute() throws
+	 * OperationFailedException{ try { return attributeRepository.findAll(); }catch
+	 * (Exception e) { throw new OperationFailedException(); } }
+	 * 
+	 * @Override
+	 * 
+	 * @Transactional public Attribute save(Attribute attribute) throws
+	 * OperationFailedException { try { return attributeRepository.save(attribute);
+	 * } catch (Exception e) { throw new OperationFailedException(); } }
+	 */
 	
+
 	@Override
 	public Attribute findById(int id) throws AttributeNotFoundException{
 		return attributeRepository.findById(id).orElseThrow(() -> new AttributeNotFoundException());
 	}
 
 	@Override
-	public Attribute update(Attribute attribute) throws OperationFailedException {
-		return attributeRepository.save(attribute);
+	public Attribute update(Attribute attribute){
+		try {
+			return attributeRepository.save(attribute);
+		}catch (Exception e) {
+			throw e;
+		}
 	}
 
 	@Override
-	public void deleteAttribute(Attribute attribute) throws OperationFailedException {
-		attributeRepository.delete(attribute);
+	public void deleteAttribute(Attribute attribute){
+		try {
+			attributeRepository.delete(attribute);
+		}catch (Exception e) {
+			throw e;
+		}
+		
 	}
 	
 	@Override
 	public List<Attribute> findAllAttribute(){
-		return attributeRepository.findAll();
+		try {
+			return attributeRepository.findAll();
+		}catch (Exception e) {
+			throw e;
+		}
 	}
 
 	@Override
 	@Transactional
-	public Attribute save(Attribute attribute) throws OperationFailedException {
+	public Attribute save(Attribute attribute) {
 		try {
 			return attributeRepository.save(attribute); 
 		} catch (Exception e) {
-			throw new OperationFailedException();
+			throw e;
 		}
 	}
 }

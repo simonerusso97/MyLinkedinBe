@@ -10,12 +10,12 @@ public interface IAttributeService {
 
 	Attribute findById(int id) throws AttributeNotFoundException;
 
-	Attribute update(Attribute attribute) throws OperationFailedException;
+	Attribute update(Attribute attribute);
 
-	void deleteAttribute(Attribute attribute) throws OperationFailedException;
+	void deleteAttribute(Attribute attribute);
 
 	List<Attribute> findAllAttribute();
 
-	Attribute save(Attribute attribute) throws OperationFailedException;
+	Attribute save(Attribute attribute);
 
 }

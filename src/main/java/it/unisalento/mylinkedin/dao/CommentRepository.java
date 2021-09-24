@@ -7,6 +7,4 @@ import it.unisalento.mylinkedin.domain.entity.Comment;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
-
-	Comment findById(int id);
 }

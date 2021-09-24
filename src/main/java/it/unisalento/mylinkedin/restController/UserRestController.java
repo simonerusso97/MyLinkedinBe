@@ -9,13 +9,17 @@ import org.springframework.web.bind.annotation.RestController;
 import it.unisalento.mylinkedin.domain.entity.Admin;
 import it.unisalento.mylinkedin.domain.entity.Applicant;
 import it.unisalento.mylinkedin.domain.entity.Offeror;
+import it.unisalento.mylinkedin.domain.entity.Post;
 import it.unisalento.mylinkedin.domain.entity.Regular;
 import it.unisalento.mylinkedin.domain.entity.User;
+import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
 import it.unisalento.mylinkedin.dto.ApplicantDTO;
 import it.unisalento.mylinkedin.dto.OfferorDTO;
+import it.unisalento.mylinkedin.dto.PostDTO;
 import it.unisalento.mylinkedin.dto.RegularDTO;
 import it.unisalento.mylinkedin.dto.UserDTO;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
+import it.unisalento.mylinkedin.exceptions.PostNotFoundException;
 import it.unisalento.mylinkedin.exceptions.UserAlreadyExist;
 import it.unisalento.mylinkedin.exceptions.UserNotFoundException;
 import it.unisalento.mylinkedin.iService.ICompanyService;
@@ -263,5 +267,56 @@ public class UserRestController {
 			}
 		return new ResponseEntity<OfferorDTO>(HttpStatus.OK);
 	}
+	@RequestMapping(value="/updateInterestedList",method=RequestMethod.PATCH, produces=MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RegularDTO> savePost (@RequestBody @Valid RegularDTO regularDTO) throws PostNotFoundException, UserNotFoundException{
+		Regular regular = userService.findById(regularDTO.getId());
+		RegularInterestedInPost regularInterestedInPost;
+		List<RegularInterestedInPost> regularInterestedInPostList = new ArrayList<>();
+		Post post;
+
+		boolean found = false;
+		
+
 	
+		List<PostDTO> interestedPostListTemp = new ArrayList<>();
+		interestedPostListTemp.addAll(regularDTO.getInterestedPostList());
+		
+		List<RegularInterestedInPost> updatedList = new ArrayList<>();
+		List<RegularInterestedInPost> toRemoveList = new ArrayList<>();
+
+		
+		for (RegularInterestedInPost originalList : regular.getRegularInterestedInPostList()) {
+			for (PostDTO postDTO : regularDTO.getInterestedPostList()) {
+				if(postDTO.getId() == originalList.getPost().getId()) {
+					updatedList.add(originalList);
+					interestedPostListTemp.remove(postDTO);
+					found = true;
+					break;
+				}
+			}
+			if(!found) {
+				toRemoveList.add(originalList);
+			}
+			
+		}
+		regularInterestedInPostList.addAll(updatedList);
+		for (PostDTO postDTO : interestedPostListTemp) {
+			regularInterestedInPost = new RegularInterestedInPost();
+			post = postService.findById(postDTO.getId());
+			regularInterestedInPost.setPost(post);
+			regularInterestedInPost.setRegular(regular);
+			regularInterestedInPostList.add(regularInterestedInPost);
+		}
+		regular.setRegularInterestedInPostList(regularInterestedInPostList);
+		
+	
+		
+		
+		
+		System.out.println();
+		userService.save(regular);
+		userService.removeInterest(toRemoveList);
+		
+		return new ResponseEntity<RegularDTO>(HttpStatus.OK);
+	}
 }

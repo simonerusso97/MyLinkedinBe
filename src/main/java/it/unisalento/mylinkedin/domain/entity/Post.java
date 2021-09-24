@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -12,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotBlank;
 
 import it.unisalento.mylinkedin.domain.relationship.PostRequireSkill;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
@@ -26,6 +28,7 @@ public Post() {}
 	int id;
 	String name;
 	Date pubblicationDate;
+	@Column(columnDefinition = "bit(1) default 0")
 	boolean hide;
 	
 	@OneToOne(mappedBy = "post", targetEntity = JsonDocument.class, cascade = CascadeType.ALL , fetch = FetchType.LAZY)

@@ -1,6 +1,7 @@
 package it.unisalento.mylinkedin.restController;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -18,8 +19,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.unisalento.mylinkedin.domain.entity.Post;
+import it.unisalento.mylinkedin.domain.entity.Skill;
 import it.unisalento.mylinkedin.dto.PostDTO;
+import it.unisalento.mylinkedin.dto.SkillDTO;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
+import it.unisalento.mylinkedin.exceptions.PostNotFoundException;
 import it.unisalento.mylinkedin.exceptions.UserNotFoundException;
 import it.unisalento.mylinkedin.iService.IAttachedService;
 import it.unisalento.mylinkedin.iService.ICommentService;
@@ -75,18 +79,29 @@ public class PostRestController {
 	}
 	
 	@RequestMapping(value="/changePostVisibility", method = RequestMethod.PATCH, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PostDTO> hideShowPost(@RequestBody @Valid PostDTO postDTO){
+	public ResponseEntity<PostDTO> hideShowPost(@RequestBody @Valid PostDTO postDTO) throws PostNotFoundException, OperationFailedException{
 		
-		try {
-			Post post = postService.findById(postDTO.getId());
-			post.setHide(postDTO.isHide());
-			postService.save(post);
-		}catch (Exception e) {
-			if(e.getClass()==OperationFailedException.class) {
-				return new ResponseEntity<PostDTO>(HttpStatus.NOT_FOUND);
-			}
-		}		
+		
+		Post post = postService.findById(postDTO.getId());
+		post.setHide(postDTO.isHide());
+		postService.save(post);
+				
 		return new ResponseEntity<PostDTO>(HttpStatus.OK);
 		
+	}
+	
+	@RequestMapping(value="/getAllSkill", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<SkillDTO> findAll() throws OperationFailedException{
+		List<Skill> skillList = skillService.findAll();
+		List<SkillDTO> skillDTOList = new ArrayList<>();
+		
+		for (Skill skill : skillList) {
+			SkillDTO skillDTO = new SkillDTO();
+			skillDTO.setId(skill.getId());
+			skillDTO.setName(skill.getName());
+			skillDTO.setDescription(skill.getDescription());
+			skillDTOList.add(skillDTO);
+		}
+		return skillDTOList;
 	}
 }

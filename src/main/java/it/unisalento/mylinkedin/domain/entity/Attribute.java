@@ -3,12 +3,15 @@ package it.unisalento.mylinkedin.domain.entity;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import it.unisalento.mylinkedin.domain.relationship.StructureHasAttribute;
 
@@ -20,10 +23,13 @@ public class Attribute {
 public Attribute() {}
 	
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	
 	@Id
 	int id;
+	@Column(unique = true)
 	String name;
 	String type;
+	@Column(columnDefinition = "bit(1) default 1")
 	boolean deletable;
 	
 	@OneToMany(mappedBy = "attribute", targetEntity = StructureHasAttribute.class, cascade = CascadeType.ALL , fetch = FetchType.LAZY)

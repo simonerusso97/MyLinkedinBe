@@ -19,7 +19,7 @@ public class PostRequireSkill {
 	@Id
 	int id;
 	
-	@ManyToOne
+	@ManyToOne()
 	Skill skill;
 	
 	@ManyToOne

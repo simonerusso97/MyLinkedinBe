@@ -16,13 +16,27 @@ public class SkillServiceImpl implements ISkillService{
 	@Autowired
 	SkillRepository skillRepository;
 
+	/*
+	 * @Override public Skill findById(int id) throws OperationFailedException {
+	 * return skillRepository.findById(id).orElseThrow(() -> new
+	 * OperationFailedException()); }
+	 * 
+	 * @Override public List<Skill> findAll() throws OperationFailedException { try
+	 * { return skillRepository.findAll(); }catch (Exception e) { throw new
+	 * OperationFailedException(); } }
+	 */
+	
 	@Override
 	public Skill findById(int id) throws OperationFailedException {
 		return skillRepository.findById(id).orElseThrow(() -> new OperationFailedException());
 	}
 
 	@Override
-	public List<Skill> findAll() {
-		return skillRepository.findAll();
+	public List<Skill> findAll(){
+		try {
+			return skillRepository.findAll();
+		}catch (Exception e) {
+			throw e;
+		}
 	}
 }

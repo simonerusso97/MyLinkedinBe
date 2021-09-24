@@ -3,10 +3,12 @@ package it.unisalento.mylinkedin.domain.entity;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotBlank;
 
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
 
@@ -17,12 +19,14 @@ public class Regular extends User{
 	
 	public Regular() {
 	}
-	String address;
+	String address;	
 	String degree;
+	@Column(columnDefinition = "bit(1) default 0")
 	boolean banned;
+	@Column(columnDefinition = "bit(1) default 1")
 	boolean disabled;
 	
-	@OneToMany(mappedBy = "createdBy", targetEntity = Post.class, cascade = CascadeType.ALL , fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "createdBy", targetEntity = Post.class, cascade = CascadeType.ALL, orphanRemoval=true, fetch = FetchType.LAZY)
 	List<Post> postList;
 	
 	@OneToMany(mappedBy = "regular", targetEntity = RegularInterestedInPost.class, cascade = CascadeType.ALL , fetch = FetchType.LAZY)

@@ -1,5 +1,7 @@
 package it.unisalento.mylinkedin.domain.relationship;
 
+import javax.persistence.CascadeType;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,8 +13,9 @@ import it.unisalento.mylinkedin.domain.entity.Regular;
 
 
 @Entity
-public class RegularInterestedInPost {
-	
+public class RegularInterestedInPost{
+
+
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	int id;
@@ -23,13 +26,7 @@ public class RegularInterestedInPost {
 	@ManyToOne
 	Post post;
 
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
+	
 
 	public Regular getRegular() {
 		return regular;
