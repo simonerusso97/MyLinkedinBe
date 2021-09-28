@@ -3,19 +3,19 @@ package it.unisalento.mylinkedin.iService;
 import java.util.List;
 
 import it.unisalento.mylinkedin.domain.entity.Attribute;
+import it.unisalento.mylinkedin.domain.relationship.StructureHasAttribute;
 import it.unisalento.mylinkedin.exceptions.AttributeNotFoundException;
-import it.unisalento.mylinkedin.exceptions.OperationFailedException;
 
 public interface IAttributeService {
 
-	Attribute findById(int id) throws AttributeNotFoundException;
+	List<Attribute> findAllAttribute();
 
-	Attribute update(Attribute attribute);
+	Attribute findById(int id) throws AttributeNotFoundException;
 
 	void deleteAttribute(Attribute attribute);
 
-	List<Attribute> findAllAttribute();
+	void save(Attribute attribute);
 
-	Attribute save(Attribute attribute);
+	List<StructureHasAttribute> findByStructureId(int id);
 
 }

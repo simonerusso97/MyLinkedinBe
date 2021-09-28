@@ -56,46 +56,7 @@ public class PostOfferorImpl implements GetPostStrategy{
 					postDTO.setName(post.getName());
 					postDTO.setPubblicationDate(post.getPubblicationDate());
 					
-					List<Comment> commentList=post.getCommentList();
-					List<CommentDTO> answerList=new ArrayList<>();
-					List<CommentDTO> commentDTOList=new ArrayList<>();
-					
-	                for (Comment comment : commentList) {
-	                
-	                	if(comment.getParent() == null) {
-	                		
-	                		CommentDTO commentDTO=new CommentDTO();
-	                		commentDTO.setId(comment.getId());
-	                		commentDTO.setDate(commentDTO.getDate());
-	                		ApplicantDTO applicantDTO=new ApplicantDTO();
-	                		applicantDTO.setId(comment.getApplicant().getId());
-	                		applicantDTO.setName(comment.getApplicant().getName());
-	                		applicantDTO.setSurname(comment.getApplicant().getSurname());
-	                		applicantDTO.setType("applicant");
-	                		commentDTO.setApplicant(applicantDTO);
-	                		commentDTO.setText(comment.getText());
-	                		for(Comment c: commentList) {
-	                			if(c.getParent()==comment) {
-	                			CommentDTO cDTO=new CommentDTO();
-	                    		cDTO.setId(c.getId());
-	                    		cDTO.setDate(c.getDate());
-	                    		cDTO.setText(c.getText());
-	                    		ApplicantDTO applicAnsDTO=new ApplicantDTO();
-	                    		applicAnsDTO.setId(c.getApplicant().getId());
-	                    		applicAnsDTO.setName(c.getApplicant().getName());
-	                    		applicAnsDTO.setSurname(c.getApplicant().getSurname());
-	                    		applicAnsDTO.setType("applicant");
-	                    		answerList.add(cDTO);
-	                    		}
-	                		}
-	                		commentDTO.setAnswerList(answerList);
-	                		commentDTOList.add(commentDTO);
-	                		}
-	                }
-	                postDTO.setCommentList(commentDTOList);
-					
 					List<SkillDTO> skillDTOList = new ArrayList<>();
-					
 					List<PostRequireSkill> postRequireSkillList = post.getPostRequireSkillList();
 					for (PostRequireSkill postrequireSkill : postRequireSkillList) {
 						SkillDTO skillDTO = new SkillDTO();
@@ -108,54 +69,13 @@ public class PostOfferorImpl implements GetPostStrategy{
 					
 					postDTO.setSkillList(skillDTOList);
 					
-					StructureDTO structureDTO = new StructureDTO();
-					structureDTO.setDescription(post.getStructure().getDescription());
-					structureDTO.setId(post.getStructure().getId());
-					structureDTO.setName(structureDTO.getName());
-					postDTO.setStructure(structureDTO);
+					ApplicantDTO applicantDTO = new ApplicantDTO();
+					applicantDTO.setId(post.getCreatedBy().getId());
+					applicantDTO.setName(post.getCreatedBy().getName());
+					applicantDTO.setSurname(post.getCreatedBy().getSurname());
+					applicantDTO.setEmail(post.getCreatedBy().getEmail());
 					
-					RegularDTO regularDTO = new RegularDTO();
-					regularDTO.setId(post.getCreatedBy().getId());
-					regularDTO.setName(post.getCreatedBy().getName());
-					regularDTO.setSurname(post.getCreatedBy().getSurname());
-					regularDTO.setEmail(post.getCreatedBy().getEmail());
-					
-					postDTO.setCreatedBy(regularDTO);
-					
-					List<Attached> attachedList = attachedService.findByPostIdAndType(post.getId(), "pdf");
-					List<AttachedDTO> attachedDTOList = new ArrayList<>();
-					AttachedDTO attachedDTO;
-					for(Attached att : attachedList) {
-						attachedDTO = new AttachedDTO();
-						attachedDTO.setFilename(att.getName());
-						attachedDTO.setId(att.getId());
-						attachedDTO.setType(att.getType());
-						
-						attachedDTOList.add(attachedDTO);
-					}
-					
-					postDTO.setAttachedDTOList(attachedDTOList);
-				
-					
-					//TODO: VERIFICARE il json document
-
-					JSONParser parser = new JSONParser();
-					Reader reader = new FileReader(post.getJsonDocument().getName());
-					JSONObject jsonObject = (JSONObject) parser.parse(reader);
-					
-					Set<String> keys = jsonObject.keySet();
-					
-					List<JsonDocumentDTO> jsonDocumentDTOList = new ArrayList<>();
-					for (String key : keys) {
-						JsonDocumentDTO jsonDocumentDTO = new JsonDocumentDTO();
-						jsonDocumentDTO.setNameAttribute(key);
-						jsonDocumentDTO.setValue((String) jsonObject.get(key));
-
-						jsonDocumentDTOList.add(jsonDocumentDTO);
-					}
-					
-					
-					postDTO.setJsonDocument(jsonDocumentDTOList);
+					postDTO.setCreatedBy(applicantDTO);
 					
 					postDTOList.add(postDTO);
 				}

@@ -15,11 +15,9 @@ import org.springframework.http.ResponseEntity;
 
 import it.unisalento.mylinkedin.domain.entity.Company;
 import it.unisalento.mylinkedin.dto.CompanyDTO;
-import it.unisalento.mylinkedin.dto.OfferorDTO;
 import it.unisalento.mylinkedin.exceptions.CompanyAlreadyExist;
 import it.unisalento.mylinkedin.exceptions.CompanyNotFound;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
-import it.unisalento.mylinkedin.exceptions.UserAlreadyExist;
 import it.unisalento.mylinkedin.iService.ICompanyService;
 
 @RestController
@@ -31,23 +29,13 @@ public class CompanyRestController {
 	
 	@RequestMapping(value="/login/{name}/{pwd}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	private CompanyDTO login(@PathVariable("name") String name, @PathVariable("pwd") String pwd) throws CompanyNotFound{
-		Company company = companyService.login(name, pwd);
+		Company company = companyService.findByNameAndPassword(name, pwd);
 		CompanyDTO companyDTO = new CompanyDTO();
 		companyDTO.setId(company.getId());
 		companyDTO.setName(company.getName());
 		companyDTO.setDescription(company.getDescription());
 		companyDTO.setSector(companyDTO.getSector());
 		companyDTO.setPassword(company.getPassword());
-		List<OfferorDTO> offerorDTOList = new ArrayList<OfferorDTO>();
-		company.getOfferorList().forEach(offeror -> {
-			OfferorDTO offerorDTO = new OfferorDTO();
-			offerorDTO.setId(offeror.getId());
-			offerorDTO.setName(offeror.getName());
-			offerorDTO.setSurname(offeror.getSurname());
-			offerorDTO.setEmail(offeror.getEmail());
-			offerorDTO.setPosition(offeror.getPosition());
-			offerorDTO.setVerified(offeror.isVerified());
-		});
 		return companyDTO;
 	}
 	
@@ -59,7 +47,9 @@ public class CompanyRestController {
 			CompanyDTO companyDTO = new CompanyDTO();
 			companyDTO.setId(company.getId());
 			companyDTO.setName(company.getName());
-			
+			companyDTO.setPassword(company.getPassword());
+			companyDTO.setSector(company.getSector());
+			companyDTO.setDescription(company.getDescription());
 			companyDTOList.add(companyDTO);
 			}
 		return companyDTOList;
@@ -71,14 +61,11 @@ public class CompanyRestController {
 		Company company = new Company();
 		
 		companyService.findByName(companyDTO.getName());
-		
 		company.setName(companyDTO.getName().toUpperCase());
 		company.setDescription(companyDTO.getDescription());
 		company.setPassword(companyDTO.getPassword());
 		company.setSector(companyDTO.getSector());
 		companyService.save(company);
-			
-		
 		return new ResponseEntity<CompanyDTO>(HttpStatus.CREATED);
 	}
 }

@@ -9,8 +9,8 @@ public class StructureDTO {
 	String name;
 	String description; 
 	String userType;
+	boolean deletable;
 	List<AttributeDTO> attributeList;
-	List<Boolean> deletables;
 	
 	public StructureDTO() {}
 
@@ -46,6 +46,14 @@ public class StructureDTO {
 		this.userType = userType;
 	}
 
+	public boolean isDeletable() {
+		return deletable;
+	}
+
+	public void setDeletable(boolean deletable) {
+		this.deletable = deletable;
+	}
+
 	public List<AttributeDTO> getAttributeList() {
 		return attributeList;
 	}
@@ -53,15 +61,6 @@ public class StructureDTO {
 	public void setAttributeList(List<AttributeDTO> attributeList) {
 		this.attributeList = attributeList;
 	}
-
-	public List<Boolean> getDeletables() {
-		return deletables;
-	}
-
-	public void setDeletables(List<Boolean> deletables) {
-		this.deletables = deletables;
-	}
 	
-
 	
 }

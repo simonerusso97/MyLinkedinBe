@@ -5,16 +5,11 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import it.unisalento.mylinkedin.domain.entity.Structure;
 import it.unisalento.mylinkedin.domain.relationship.StructureHasAttribute;
 
 @Repository
-public interface StructureRepository extends JpaRepository<Structure, Integer>{
-	
-	public Structure findByName(String name);
+public interface StructureHasAttributeRepository extends JpaRepository<StructureHasAttribute, Integer> {
 
-	public List<Structure> findByUserTypeOrUserType(String userType1, String all);
+	List<StructureHasAttribute> findByStructureId(int id);
 
-	
-	
 }

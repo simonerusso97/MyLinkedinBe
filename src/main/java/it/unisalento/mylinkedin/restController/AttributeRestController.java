@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import it.unisalento.mylinkedin.iService.IAttributeService;
 
 import it.unisalento.mylinkedin.domain.entity.Attribute;
-import it.unisalento.mylinkedin.domain.relationship.StructureHasAttribute;
 import it.unisalento.mylinkedin.dto.AttributeDTO;
-import it.unisalento.mylinkedin.dto.StructureDTO;
 import it.unisalento.mylinkedin.exceptions.AttributeNotFoundException;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
 
@@ -61,7 +59,7 @@ public class AttributeRestController {
 		attribute.setId(attributeDTO.getId());
 		attribute.setName(attributeDTO.getName());
 		attribute.setType(attributeDTO.getType());
-		attributeService.update(attribute);
+		attributeService.save(attribute);
 		return new ResponseEntity<AttributeDTO>(HttpStatus.OK);
 	}
 	
@@ -70,7 +68,6 @@ public class AttributeRestController {
 		Attribute attribute=new Attribute();
 		attribute.setName(attributeDTO.getName());
 		attribute.setType(attributeDTO.getType());
-		attribute.setDeletable(true);
 		attributeService.save(attribute);
 		return new ResponseEntity<AttributeDTO>(HttpStatus.CREATED);
 	}

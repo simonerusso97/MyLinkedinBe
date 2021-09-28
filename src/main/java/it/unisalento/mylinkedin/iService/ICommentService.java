@@ -1,11 +1,16 @@
 package it.unisalento.mylinkedin.iService;
 
+import java.util.List;
+
 import it.unisalento.mylinkedin.domain.entity.Comment;
 import it.unisalento.mylinkedin.exceptions.CommentNotFoundException;
-import it.unisalento.mylinkedin.exceptions.OperationFailedException;
 
 public interface ICommentService {
-	
-	Comment findById(int id) throws CommentNotFoundException;
+
+	void save(Comment comment);
+
+	List<Comment> findChild(int id);
+
+	Comment findById(int parentId) throws CommentNotFoundException;
 
 }

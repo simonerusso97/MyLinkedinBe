@@ -12,15 +12,17 @@ import it.unisalento.mylinkedin.domain.entity.Offeror;
 import it.unisalento.mylinkedin.domain.entity.Post;
 import it.unisalento.mylinkedin.domain.entity.Regular;
 import it.unisalento.mylinkedin.domain.entity.User;
+import it.unisalento.mylinkedin.domain.relationship.PostRequireSkill;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
 import it.unisalento.mylinkedin.dto.ApplicantDTO;
+import it.unisalento.mylinkedin.dto.CompanyDTO;
 import it.unisalento.mylinkedin.dto.OfferorDTO;
 import it.unisalento.mylinkedin.dto.PostDTO;
 import it.unisalento.mylinkedin.dto.RegularDTO;
+import it.unisalento.mylinkedin.dto.SkillDTO;
 import it.unisalento.mylinkedin.dto.UserDTO;
-import it.unisalento.mylinkedin.exceptions.OperationFailedException;
+import it.unisalento.mylinkedin.exceptions.CompanyNotFound;
 import it.unisalento.mylinkedin.exceptions.PostNotFoundException;
-import it.unisalento.mylinkedin.exceptions.UserAlreadyExist;
 import it.unisalento.mylinkedin.exceptions.UserNotFoundException;
 import it.unisalento.mylinkedin.iService.ICompanyService;
 import it.unisalento.mylinkedin.iService.IPostService;
@@ -54,14 +56,16 @@ public class UserRestController {
 	
 	@Autowired
 	ICompanyService companyService;
-	
+
 	@Autowired
 	IPostService postService;
+	
+	
 	
 	@RequestMapping(value="/login/{email}/{pwd}",  method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
 	public UserDTO Login(@PathVariable("email") String email, @PathVariable("pwd") String pwd) throws UserNotFoundException, FileNotFoundException, IOException, ParseException{
 		User user=new User();
-		user=userService.findByEmailAndPassword(email, pwd);
+		user=userService.findByEmailAndPassword(email.toLowerCase(), pwd);
 		LoginContext loginContext = null;
 
 		if(user.getClass() == Applicant.class) {
@@ -79,7 +83,7 @@ public class UserRestController {
 	
 	@RequestMapping(value="/findAllRegistrationRequest",  method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
 	public List<RegularDTO> findAllRegistrationRequest(){
-		List<Regular> regularList = userService.getAllDisabledRegularUser();
+		List<Regular> regularList = userService.findRegularByDisabled(true);
 		List<RegularDTO> list = new ArrayList<RegularDTO>();
 		
 		for (Regular regular : regularList) {
@@ -104,21 +108,11 @@ public class UserRestController {
 	
 
 	@RequestMapping(value="/acceptUser",  method=RequestMethod.PATCH, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<RegularDTO> acceptUser(@RequestBody @Valid RegularDTO regularDTO){
-		try {
-			Regular regular = userService.findById(regularDTO.getId());
-			regular.setDisabled(regularDTO.isDisabled());
-			userService.save(regular);
-			}
-		catch (Exception e) {
-			if(e.getClass() == OperationFailedException.class) {
-				return new ResponseEntity<RegularDTO>(HttpStatus.CONFLICT);
+	public ResponseEntity<RegularDTO> acceptUser(@RequestBody @Valid RegularDTO regularDTO) throws UserNotFoundException{
 
-			}
-			else if(e.getClass() == UserNotFoundException.class) {
-				return new ResponseEntity<RegularDTO>(HttpStatus.NOT_FOUND);
-				}
-			}
+		Regular regular = userService.findById(regularDTO.getId());
+		regular.setDisabled(regularDTO.isDisabled());
+		userService.save(regular);
 		return new ResponseEntity<RegularDTO>(HttpStatus.OK);
 
 	}
@@ -126,7 +120,7 @@ public class UserRestController {
 	@RequestMapping(value="/getAllUser", method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	private List<RegularDTO> getAllRegular(){
 		List<Regular> regularList = new ArrayList<>();
-		regularList = userService.findAllRegularEnabled();
+		regularList = userService.findRegularByDisabled(false);
 		List<RegularDTO> regularDTOList = new ArrayList<>();
 		
 		for (Regular regular : regularList) {
@@ -148,28 +142,16 @@ public class UserRestController {
 	}
 	
 	@RequestMapping(value = "/banUnban", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
-	private ResponseEntity<RegularDTO> banUnbanRegularUser(@RequestBody @Valid RegularDTO regularDTO){
-		try {
+	private ResponseEntity<RegularDTO> banUnban(@RequestBody @Valid RegularDTO regularDTO) throws UserNotFoundException{
 			Regular regular = userService.findById(regularDTO.getId());
 			regular.setBanned(regularDTO.isBanned());
-			userService.updateRegularUser(regular);
-			}
-		catch (Exception e) {
-				if(e.getClass() == OperationFailedException.class) {
-					return new ResponseEntity<RegularDTO>(HttpStatus.CONFLICT);
-				}
-				else if(e.getClass() == UserNotFoundException.class) {
-					return new ResponseEntity<RegularDTO>(HttpStatus.NOT_FOUND);
-
-				}
-			}
-		return new ResponseEntity<RegularDTO>(HttpStatus.OK);
+			userService.save(regular);
+			return new ResponseEntity<RegularDTO>(HttpStatus.OK);
 
 	}
 	
 	@RequestMapping(value="/applicatSignUp", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	private ResponseEntity<ApplicantDTO> registrationApplicant(@RequestBody @Valid ApplicantDTO applicantDTO){
-		try {
 			Applicant applicant = new Applicant();
 
 			userService.findByEmail(applicantDTO.getEmail().toLowerCase());
@@ -184,22 +166,13 @@ public class UserRestController {
 			applicant.setSurname(applicantDTO.getSurname());
 			applicant.setDisabled(applicantDTO.isDisabled());
 			
-			userService.saveApplicant(applicant);
-			}
-		catch (Exception e) {
-				if(e.getClass() == OperationFailedException.class) {
-					return new ResponseEntity<ApplicantDTO>(HttpStatus.METHOD_NOT_ALLOWED);
-				}
-				else if(e.getClass() == UserAlreadyExist.class) {
-					return new ResponseEntity<ApplicantDTO>(HttpStatus.CONFLICT);
-				}
-			}
-		return new ResponseEntity<ApplicantDTO>(HttpStatus.CREATED);
+			userService.save(applicant);
+			return new ResponseEntity<ApplicantDTO>(HttpStatus.CREATED);
 	}
 	
 	@RequestMapping(value="/offerorSignUp", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	private ResponseEntity<OfferorDTO> registrationOfferor(@RequestBody @Valid OfferorDTO offerorDTO){
-		try {
+	private ResponseEntity<OfferorDTO> registrationOfferor(@RequestBody @Valid OfferorDTO offerorDTO) throws CompanyNotFound{
+		
 			Offeror offeror = new Offeror();
 			userService.findByEmail(offerorDTO.getEmail().toLowerCase());
 			
@@ -216,17 +189,9 @@ public class UserRestController {
 			offeror.setVerified(offerorDTO.isVerified());
 			
 			offeror.setCompany(companyService.findById(offerorDTO.getCompany().getId()));
-			userService.saveOfferor(offeror);
-			}
-		catch (Exception e) {
-			if(e.getClass() == OperationFailedException.class) {
-				return new ResponseEntity<OfferorDTO>(HttpStatus.METHOD_NOT_ALLOWED);
-			}
-			else if(e.getClass() == UserAlreadyExist.class) {
-				return new ResponseEntity<OfferorDTO>(HttpStatus.CONFLICT);
-			}
-		}
-		return new ResponseEntity<OfferorDTO>(HttpStatus.CREATED);
+			userService.save(offeror);
+			
+			return new ResponseEntity<OfferorDTO>(HttpStatus.CREATED);
 			
 		}
 	
@@ -234,7 +199,7 @@ public class UserRestController {
 	@RequestMapping(value="/findOfferorNotVerifed/{idCompany}", method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	private List<OfferorDTO> findOfferorNotVerifed(@PathVariable("idCompany") int idCompany){
 		
-		List<Offeror> offerorList = userService.findByIdCompanyAndVerified(idCompany, false);
+		List<Offeror> offerorList = userService.findByCompanyIdAndVerified(idCompany, false);
 		List<OfferorDTO> offerorDTOList = new ArrayList<>();
 
 		for (Offeror offeror : offerorList) {
@@ -252,73 +217,94 @@ public class UserRestController {
 	}
 	
 	@RequestMapping(value = "/acceptOfferor", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
-	private ResponseEntity<OfferorDTO> acceptOfferor(@RequestBody @Valid OfferorDTO offerorDTO){
-		try {
+	private ResponseEntity<OfferorDTO> acceptOfferor(@RequestBody @Valid OfferorDTO offerorDTO) throws UserNotFoundException{
 			Offeror offeror = (Offeror) userService.findById(offerorDTO.getId());
 			offeror.setVerified(true);
-			userService.saveOfferor(offeror);
-			}
-		catch (Exception e) {
-				if(e.getClass() == OperationFailedException.class) {
-					return new ResponseEntity<OfferorDTO>(HttpStatus.METHOD_NOT_ALLOWED);
-				}
-				else if(e.getClass() == UserNotFoundException.class) {
-					return new ResponseEntity<OfferorDTO>(HttpStatus.NOT_FOUND);
-
-				}
-			}
-		return new ResponseEntity<OfferorDTO>(HttpStatus.OK);
+			userService.save(offeror);
+			return new ResponseEntity<OfferorDTO>(HttpStatus.OK);
 	}
-	@RequestMapping(value="/updateInterestedList",method=RequestMethod.PATCH, produces=MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RegularDTO> savePost (@RequestBody @Valid RegularDTO regularDTO) throws PostNotFoundException, UserNotFoundException{
-		Regular regular = userService.findById(regularDTO.getId());
-		RegularInterestedInPost regularInterestedInPost;
-		List<RegularInterestedInPost> regularInterestedInPostList = new ArrayList<>();
-		Post post;
-
-		boolean found = false;
-		
-
 	
-		List<PostDTO> interestedPostListTemp = new ArrayList<>();
-		interestedPostListTemp.addAll(regularDTO.getInterestedPostList());
-		
+	@RequestMapping(value="/updateInterestedList/{userId}",method=RequestMethod.PATCH, produces=MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RegularDTO> savePost (@PathVariable("userId") int userId, @RequestBody @Valid List<PostDTO> postList) throws PostNotFoundException, UserNotFoundException{
+		List<PostDTO> tempList = new ArrayList<>();
 		List<RegularInterestedInPost> updatedList = new ArrayList<>();
 		List<RegularInterestedInPost> toRemoveList = new ArrayList<>();
-
+		RegularInterestedInPost regularInterestedInPost;
+		Post post;
+		boolean found = false;
 		
-		for (RegularInterestedInPost originalList : regular.getRegularInterestedInPostList()) {
-			for (PostDTO postDTO : regularDTO.getInterestedPostList()) {
-				if(postDTO.getId() == originalList.getPost().getId()) {
-					updatedList.add(originalList);
-					interestedPostListTemp.remove(postDTO);
+		Regular regular = userService.findById(userId);
+		tempList.addAll(postList);
+		
+		
+		List<RegularInterestedInPost> regularInterestedInPostList = userService.findInterestedPostByUserId(userId);
+		for (RegularInterestedInPost RIIP : regularInterestedInPostList) {
+			for (PostDTO postDTO : postList) {
+				if(RIIP.getPost().getId() == postDTO.getId()) {
+					updatedList.add(RIIP);
+					tempList.remove(postDTO);
 					found = true;
 					break;
 				}
 			}
 			if(!found) {
-				toRemoveList.add(originalList);
+				toRemoveList.add(RIIP);
 			}
-			
 		}
-		regularInterestedInPostList.addAll(updatedList);
-		for (PostDTO postDTO : interestedPostListTemp) {
-			regularInterestedInPost = new RegularInterestedInPost();
+		
+		for (PostDTO postDTO : tempList) {
 			post = postService.findById(postDTO.getId());
+			regularInterestedInPost = new RegularInterestedInPost();
 			regularInterestedInPost.setPost(post);
 			regularInterestedInPost.setRegular(regular);
-			regularInterestedInPostList.add(regularInterestedInPost);
-		}
-		regular.setRegularInterestedInPostList(regularInterestedInPostList);
+			updatedList.add(regularInterestedInPost);
+			}
 		
-	
-		
-		
-		
-		System.out.println();
-		userService.save(regular);
+		userService.updateInterestedList(updatedList);
 		userService.removeInterest(toRemoveList);
 		
 		return new ResponseEntity<RegularDTO>(HttpStatus.OK);
 	}
+	
+	@RequestMapping(value="/findAllInterestedPost/{idUser}", method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	private List<PostDTO> findAllInterestedPost(@PathVariable("idUser") int idUser) throws UserNotFoundException{
+		List<RegularInterestedInPost> riipList = postService.findInterestedPost(idUser);
+		List<PostDTO> postDTOList = new ArrayList<>();
+		PostDTO postDTO;
+		for (RegularInterestedInPost riip : riipList) {
+			postDTO = new PostDTO();
+			postDTO.setHide(riip.getPost().isHide());
+			postDTO.setId(riip.getPost().getId());
+			postDTO.setName(riip.getPost().getName());
+			postDTO.setPubblicationDate(riip.getPost().getPubblicationDate());
+			
+			List<SkillDTO> skillDTOList = new ArrayList<>();
+			
+			List<PostRequireSkill> postRequireSkillList = riip.getPost().getPostRequireSkillList();
+			for (PostRequireSkill postrequireSkill : postRequireSkillList) {
+				SkillDTO skillDTO = new SkillDTO();
+				skillDTO.setDescription(postrequireSkill.getSkill().getDescription());
+				skillDTO.setId(postrequireSkill.getSkill().getId());
+				skillDTO.setName(postrequireSkill.getSkill().getName());
+				
+				skillDTOList.add(skillDTO);
+			}
+			
+			postDTO.setSkillList(skillDTOList);
+			
+			RegularDTO regularDTO = new RegularDTO();
+			Regular regular = (Regular) userService.findById(riip.getPost().getCreatedBy().getId());
+			regularDTO.setId(regular.getId());
+			regularDTO.setName(regular.getName());
+			regularDTO.setSurname(regular.getSurname());
+			regularDTO.setEmail(regular.getEmail());		
+			
+			postDTO.setCreatedBy(regularDTO);
+			
+			postDTOList.add(postDTO);
+		}
+		return postDTOList;
+	}
+	
+	
 }

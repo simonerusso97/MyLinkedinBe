@@ -27,6 +27,8 @@ public class Structure {
 	String name;
 	String description;
 	String userType;
+	@Column(columnDefinition = "bit(1) default 1")
+	boolean deletable;
 	
 	@OneToMany(mappedBy = "structure", targetEntity = Post.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	List<Post> postList;
@@ -82,4 +84,13 @@ public class Structure {
 	public void setStructureHasAttributeList(List<StructureHasAttribute> structureHasAttributeList) {
 		this.structureHasAttributeList = structureHasAttributeList;
 	}
+
+	public boolean isDeletable() {
+		return deletable;
+	}
+
+	public void setDeletable(boolean deletable) {
+		this.deletable = deletable;
+	}
+	
 }

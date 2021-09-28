@@ -2,49 +2,30 @@ package it.unisalento.mylinkedin.iService;
 
 import java.util.List;
 
-import it.unisalento.mylinkedin.domain.entity.Applicant;
-import it.unisalento.mylinkedin.domain.entity.Message;
 import it.unisalento.mylinkedin.domain.entity.Offeror;
 import it.unisalento.mylinkedin.domain.entity.Regular;
 import it.unisalento.mylinkedin.domain.entity.User;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
-import it.unisalento.mylinkedin.exceptions.OperationFailedException;
-import it.unisalento.mylinkedin.exceptions.UserAlreadyExist;
 import it.unisalento.mylinkedin.exceptions.UserNotFoundException;
 
 public interface IUserService {
 
-	List<Regular> getAllDisabledRegularUser();
+	User findByEmailAndPassword(String email, String pwd) throws UserNotFoundException;
 
-	Regular updateRegularUser(Regular regularUser);
+	List<Regular> findRegularByDisabled(boolean disabled);
 
 	Regular findById(int id) throws UserNotFoundException;
-	
-	Offeror saveOfferor(Offeror offeror);
 
-	Applicant saveApplicant(Applicant applicant);
+	void save(Regular regular);
 
-	User findByEmailAndPassword(String email, String password) throws UserNotFoundException;
+	void findByEmail(String email);
 
-	List<Regular> findAllRegularEnabled();
+	List<Offeror> findByCompanyIdAndVerified(int idCompany, boolean ver);
 
-	Regular save(Regular regular);
+	List<RegularInterestedInPost> findInterestedPostByUserId(int userId);
 
-	List<Message> findAllMessages(int id);
-
-	void findByEmail(String lowerCase) throws UserAlreadyExist;
-
-	List<User> findAll();
-
-	Message saveMessage(Message message);
-
-	List<Message> findMessages(int id, int idUserChat);
-
-	List<Offeror> findByIdCompanyAndVerified(int idCompany, boolean b);
-
-	User findUserById(int id) throws UserNotFoundException;
+	void updateInterestedList(List<RegularInterestedInPost> updatedList);
 
 	void removeInterest(List<RegularInterestedInPost> toRemoveList);
-
 
 }
