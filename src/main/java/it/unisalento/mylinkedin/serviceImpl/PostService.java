@@ -5,10 +5,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import it.unisalento.mylinkedin.dao.JsonDocumentRepository;
 import it.unisalento.mylinkedin.dao.PostRepository;
 import it.unisalento.mylinkedin.dao.RegularInterestedInPostRepository;
+import it.unisalento.mylinkedin.domain.entity.JsonDocument;
 import it.unisalento.mylinkedin.domain.entity.Post;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
+import it.unisalento.mylinkedin.exceptions.OperationFailedException;
 import it.unisalento.mylinkedin.exceptions.PostNotFoundException;
 import it.unisalento.mylinkedin.iService.IPostService;
 
@@ -21,20 +24,21 @@ public class PostService implements IPostService {
 	@Autowired
 	RegularInterestedInPostRepository riipRepo;
 	
+	@Autowired
+	JsonDocumentRepository jDocRepo;
+	
 	@Override
 	public Post findById(int id) throws PostNotFoundException {
 		return postRepo.findById(id).orElseThrow(() -> new PostNotFoundException());
 	}
 
 	@Override
-	public void save(Post post) {
+	public Post save(Post post)  {
 		try {
-			postRepo.save(post);
+	        return postRepo.save(post);
+		}catch (Exception e) {
+			throw e;		
 		}
-		catch (Exception e) {
-			throw e;
-		}
-		
 	}
 
 	@Override
@@ -53,6 +57,24 @@ public class PostService implements IPostService {
 		} catch (Exception e) {
 			throw e;
 		}
+	}
+
+	@Override
+	public int getLastJsonDucumentIndex() {
+		List<JsonDocument> list = jDocRepo.findAll();
+		if(list.size() == 0) {
+			return -1;
+		}
+		return list.get(list.size()-1).getId();	}
+
+	@Override
+	public JsonDocument saveJsonDocument(JsonDocument jsonDocument) {
+		try {
+			jDocRepo.save(jsonDocument);
+		} catch (Exception e) {
+			throw e;
+		}
+		return null;
 	}
 
 }

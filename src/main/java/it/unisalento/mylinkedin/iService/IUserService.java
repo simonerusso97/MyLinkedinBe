@@ -2,6 +2,7 @@ package it.unisalento.mylinkedin.iService;
 
 import java.util.List;
 
+import it.unisalento.mylinkedin.domain.entity.Message;
 import it.unisalento.mylinkedin.domain.entity.Offeror;
 import it.unisalento.mylinkedin.domain.entity.Regular;
 import it.unisalento.mylinkedin.domain.entity.User;
@@ -27,5 +28,13 @@ public interface IUserService {
 	void updateInterestedList(List<RegularInterestedInPost> updatedList);
 
 	void removeInterest(List<RegularInterestedInPost> toRemoveList);
+
+	List<Message> findMessageByUserId(int idUser);
+
+	User findUserById(int id) throws UserNotFoundException;
+
+	List<User> findAllUser();
+
+	void saveMessage(Message message);
 
 }

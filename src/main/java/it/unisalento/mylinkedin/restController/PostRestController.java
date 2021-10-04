@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.FileWriter;
+
 
 import javax.validation.Valid;
 
@@ -22,9 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 import it.unisalento.mylinkedin.domain.entity.Applicant;
 import it.unisalento.mylinkedin.domain.entity.Attached;
 import it.unisalento.mylinkedin.domain.entity.Comment;
+import it.unisalento.mylinkedin.domain.entity.JsonDocument;
 import it.unisalento.mylinkedin.domain.entity.Post;
 import it.unisalento.mylinkedin.domain.entity.Regular;
 import it.unisalento.mylinkedin.domain.entity.Skill;
+import it.unisalento.mylinkedin.domain.entity.Structure;
 import it.unisalento.mylinkedin.domain.relationship.PostRequireSkill;
 import it.unisalento.mylinkedin.dto.ApplicantDTO;
 import it.unisalento.mylinkedin.dto.AttachedDTO;
@@ -37,6 +41,8 @@ import it.unisalento.mylinkedin.dto.StructureDTO;
 import it.unisalento.mylinkedin.exceptions.CommentNotFoundException;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
 import it.unisalento.mylinkedin.exceptions.PostNotFoundException;
+import it.unisalento.mylinkedin.exceptions.SkillNotFound;
+import it.unisalento.mylinkedin.exceptions.StructureNotFound;
 import it.unisalento.mylinkedin.exceptions.UserNotFoundException;
 import it.unisalento.mylinkedin.iService.IAttachedService;
 import it.unisalento.mylinkedin.iService.ICommentService;
@@ -46,12 +52,13 @@ import it.unisalento.mylinkedin.iService.ISkillService;
 import it.unisalento.mylinkedin.iService.IStructureService;
 import it.unisalento.mylinkedin.iService.IUserService;
 import it.unisalento.mylinkedin.strategy.post.PostAdminImpl;
-import it.unisalento.mylinkedin.strategy.post.PostApplicantImpl;
+import it.unisalento.mylinkedin.strategy.post.PostRegularImpl;
 import it.unisalento.mylinkedin.strategy.post.PostContext;
 import it.unisalento.mylinkedin.strategy.post.PostOfferorImpl;
 import java.util.Base64;
 import java.nio.file.Files;
 
+import org.json.JSONException;
 import org.json.simple.JSONObject;
 
 import org.json.simple.parser.JSONParser;
@@ -92,10 +99,10 @@ public class PostRestController {
 		  postContext = new PostContext(new PostAdminImpl()); 
 		  } 
 	  else if(userType.equals("offeror")) { 
-		  postContext = new PostContext(new PostOfferorImpl()); 
+		  postContext = new PostContext(new PostRegularImpl()); 
 		  } 
 	  else { 
-		  postContext = new PostContext(new PostApplicantImpl()); 
+		  postContext = new PostContext(new PostRegularImpl()); 
 		  } 
 	  List<PostDTO> list = postContext.getAllPost(postService, userService, attachedService); 
 	  return list; 
@@ -113,20 +120,7 @@ public class PostRestController {
 		
 	}
 	
-	@RequestMapping(value="/getAllSkill", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<SkillDTO> findAll() throws OperationFailedException{
-		List<Skill> skillList = skillService.findAll();
-		List<SkillDTO> skillDTOList = new ArrayList<>();
-		
-		for (Skill skill : skillList) {
-			SkillDTO skillDTO = new SkillDTO();
-			skillDTO.setId(skill.getId());
-			skillDTO.setName(skill.getName());
-			skillDTO.setDescription(skill.getDescription());
-			skillDTOList.add(skillDTO);
-		}
-		return skillDTOList;
-	}
+	
 	@RequestMapping(value="/findPostById/{postId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public PostDTO findPostById(@PathVariable("postId") int postId) throws PostNotFoundException, UserNotFoundException, IOException, ParseException{
 		Post post = postService.findById(postId);
@@ -283,5 +277,78 @@ public class PostRestController {
 	        throw new IllegalStateException("could not read file " + file, e);
 	    }
 	}
+	
+	@RequestMapping(value="/save", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public Integer save(@RequestBody @Valid PostDTO postDTO) throws OperationFailedException, UserNotFoundException, IOException, JSONException, StructureNotFound, SkillNotFound{
+		Post post = new Post();
+		post.setHide(postDTO.isHide());
+		post.setName(postDTO.getName());
+		post.setPubblicationDate(postDTO.getPubblicationDate());
+						
+		List<SkillDTO> skillDTOList = postDTO.getSkillList();
+		
+		List<PostRequireSkill> postRequireSkillList = new ArrayList<>();
+		
+		for (SkillDTO skillDTO : skillDTOList) {
+			Skill skill = skillService.findById(skillDTO.getId());
+			PostRequireSkill postRequireSkill = new PostRequireSkill();
+			postRequireSkill.setPost(post);
+			postRequireSkill.setSkill(skill);
+			
+			postRequireSkillList.add(postRequireSkill);
+		}
+		
+		post.setPostRequireSkillList(postRequireSkillList);
+		
+		Structure structure = structureService.getById(postDTO.getStructure().getId());
+		
+		post.setStructure(structure);
+		
+		Regular regular = userService.findById(postDTO.getCreatedBy().getId());
+		post.setCreatedBy(regular);
+		
+		//TODO: manca la comment list
+		//TODO: assicurarsi che la scrittura del file json funzioni
+		
+		int index = postService.getLastJsonDucumentIndex() + 1;
+		String path = new File("").getAbsoluteFile()+"/json/jsonDocumentIndex"+index;
+		
+		JSONObject obj = new JSONObject();
+		for (JsonDocumentDTO jsonDocument : postDTO.getJsonDocument()) {
+			obj.put(jsonDocument.getNameAttribute(), jsonDocument.getValue());
+		}
+		
+	    FileWriter file = new FileWriter(path);
+        file.write(obj.toString());
+        file.close();
+        
+        post.setId(postService.save(post).getId());
+        
+        JsonDocument jsonDocument = new JsonDocument();
+		jsonDocument.setName(path);
+		jsonDocument.setPost(post);
+		jsonDocument = postService.saveJsonDocument(jsonDocument);
+		post.setJsonDocument(jsonDocument);
+		
+
+		return post.getId();
+					
+	}
+	
+	@RequestMapping(value="/getAllSkill", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<SkillDTO> findAllSkill(){
+		List<Skill> skillList = skillService.findAll();
+		List<SkillDTO> skillDTOList = new ArrayList<>();
+		
+		for (Skill skill : skillList) {
+			SkillDTO skillDTO = new SkillDTO();
+			skillDTO.setId(skill.getId());
+			skillDTO.setName(skill.getName());
+			skillDTO.setDescription(skill.getDescription());
+			skillDTOList.add(skillDTO);
+		}
+		return skillDTOList;
+	}
+	
 	
 }

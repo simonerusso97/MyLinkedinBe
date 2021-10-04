@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import it.unisalento.mylinkedin.dao.MessageRepository;
 import it.unisalento.mylinkedin.dao.RegularInterestedInPostRepository;
 import it.unisalento.mylinkedin.dao.UserRepository;
 import it.unisalento.mylinkedin.domain.entity.Admin;
 import it.unisalento.mylinkedin.domain.entity.Applicant;
+import it.unisalento.mylinkedin.domain.entity.Message;
 import it.unisalento.mylinkedin.domain.entity.Offeror;
 import it.unisalento.mylinkedin.domain.entity.Regular;
 import it.unisalento.mylinkedin.domain.entity.User;
@@ -24,6 +26,9 @@ public class UserService implements IUserService {
 	
 	@Autowired
 	RegularInterestedInPostRepository riipRepo;
+	
+	@Autowired
+	MessageRepository messageRepo;
 
 	@Override
 	public User findByEmailAndPassword(String email, String pwd) throws UserNotFoundException {
@@ -110,6 +115,39 @@ public class UserService implements IUserService {
 		} catch (Exception e) {
 			throw e;
 		}		
+	}
+
+	@Override
+	public List<Message> findMessageByUserId(int idUser) {
+		try {
+			return messageRepo.findBySendingUserIdOrReceivingUserId(idUser, idUser);
+		}catch (Exception e) {
+			throw e;
+		}
+	}
+
+	@Override
+	public User findUserById(int id) throws UserNotFoundException {
+		return userRepo.findById(id).orElseThrow(() -> new UserNotFoundException());		
+		}
+
+	@Override
+	public List<User> findAllUser() {
+		try {
+			return userRepo.findAll();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	@Override
+	public void saveMessage(Message message) {
+		try {
+			messageRepo.save(message);
+		} catch (Exception e) {
+			throw e;
+		}
+		
 	}
 
 	

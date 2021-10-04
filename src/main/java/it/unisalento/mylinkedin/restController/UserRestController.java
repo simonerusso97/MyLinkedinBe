@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.unisalento.mylinkedin.domain.entity.Admin;
 import it.unisalento.mylinkedin.domain.entity.Applicant;
+import it.unisalento.mylinkedin.domain.entity.Message;
 import it.unisalento.mylinkedin.domain.entity.Offeror;
 import it.unisalento.mylinkedin.domain.entity.Post;
 import it.unisalento.mylinkedin.domain.entity.Regular;
@@ -16,6 +17,7 @@ import it.unisalento.mylinkedin.domain.relationship.PostRequireSkill;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
 import it.unisalento.mylinkedin.dto.ApplicantDTO;
 import it.unisalento.mylinkedin.dto.CompanyDTO;
+import it.unisalento.mylinkedin.dto.MessageDTO;
 import it.unisalento.mylinkedin.dto.OfferorDTO;
 import it.unisalento.mylinkedin.dto.PostDTO;
 import it.unisalento.mylinkedin.dto.RegularDTO;
@@ -117,8 +119,8 @@ public class UserRestController {
 
 	}
 
-	@RequestMapping(value="/getAllUser", method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	private List<RegularDTO> getAllRegular(){
+	@RequestMapping(value="/getAllDisabledUser", method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	private List<RegularDTO> getAllDisabledUser(){
 		List<Regular> regularList = new ArrayList<>();
 		regularList = userService.findRegularByDisabled(false);
 		List<RegularDTO> regularDTOList = new ArrayList<>();
@@ -306,5 +308,106 @@ public class UserRestController {
 		return postDTOList;
 	}
 	
+	@RequestMapping(value="/getAllMessage/{idUser}",  method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+	public List<MessageDTO> getAllMessage(@PathVariable("idUser") int idUser) throws UserNotFoundException{
+		List<Message> messageList = userService.findMessageByUserId(idUser);
+		List<MessageDTO> messageDTOList = new ArrayList<>();
+		User user;
+		UserDTO userDTO;
+		MessageDTO messageDTO;
+		for (Message message : messageList) {
+			messageDTO = new MessageDTO();
+			messageDTO.setId(message.getId());
+			messageDTO.setDate(message.getDate());
+			messageDTO.setText(message.getText());
+			userDTO = new UserDTO();
+			user = userService.findUserById(message.getSendingUser().getId());
+			userDTO.setId(user.getId());
+			userDTO.setBirthDate(user.getBirthDate());
+			userDTO.setEmail(user.getEmail());
+			userDTO.setName(user.getName());
+			userDTO.setSurname(user.getSurname());
+			
+			if(user.getClass() == Applicant.class) {
+				userDTO.setType("Applicant");
+			}
+			if(user.getClass() == Offeror.class) {
+				userDTO.setType("Offeror");
+			}
+			if(user.getClass() == Admin.class) {
+				userDTO.setType("Admin");
+			}
+			
+			messageDTO.setSendingUser(userDTO);
+			
+			userDTO = new UserDTO();
+			user = userService.findUserById(message.getReceivingUser().getId());
+			userDTO.setId(user.getId());
+			userDTO.setBirthDate(user.getBirthDate());
+			userDTO.setEmail(user.getEmail());
+			userDTO.setName(user.getName());
+			userDTO.setSurname(user.getSurname());
+			
+			if(user.getClass() == Applicant.class) {
+				userDTO.setType("Applicant");
+			}
+			if(user.getClass() == Offeror.class) {
+				userDTO.setType("Offeror");
+			}
+			if(user.getClass() == Admin.class) {
+				userDTO.setType("Admin");
+			}
+			
+			
+			messageDTO.setReceivingUser(userDTO);
+			
+			messageDTOList.add(messageDTO);
+		}
+		
+		return messageDTOList;
+	}
 	
+	@RequestMapping(value="/getAllUser", method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	private List<UserDTO> getAllUser(){
+		List<User> userList = new ArrayList<>();
+		userList = userService.findAllUser();
+		List<UserDTO> userDTOList = new ArrayList<>();
+		
+		for (User user : userList) {
+			UserDTO userDTO = new RegularDTO();
+			
+			userDTO.setBirthDate(user.getBirthDate());
+			userDTO.setEmail(user.getEmail());
+			userDTO.setId(user.getId());
+			userDTO.setName(user.getName());
+			userDTO.setSurname(user.getSurname());
+			
+			if(user.getClass() == Applicant.class) {
+				userDTO.setType("Applicant");
+			}
+			if(user.getClass() == Offeror.class) {
+				userDTO.setType("Offeror");
+			}
+			if(user.getClass() == Admin.class) {
+				userDTO.setType("Admin");
+			}
+			
+			userDTOList.add(userDTO);
+		}
+		
+		return userDTOList;
+	}
+	
+	@RequestMapping(value="/sendMessage", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	private ResponseEntity<MessageDTO> sendMessage(@RequestBody @Valid MessageDTO messageDTO) throws UserNotFoundException{
+		Message message = new Message();
+		message.setDate(messageDTO.getDate());
+		User user = userService.findUserById(messageDTO.getReceivingUser().getId());
+		message.setReceivingUser(user);
+		user = userService.findUserById(messageDTO.getSendingUser().getId());
+		message.setSendingUser(user);
+		message.setText(messageDTO.getText());
+		userService.saveMessage(message);
+		return new ResponseEntity<MessageDTO>(HttpStatus.OK);
+	}
 }

@@ -57,6 +57,7 @@ public class PostOfferorImpl implements GetPostStrategy{
 					postDTO.setPubblicationDate(post.getPubblicationDate());
 					
 					List<SkillDTO> skillDTOList = new ArrayList<>();
+					
 					List<PostRequireSkill> postRequireSkillList = post.getPostRequireSkillList();
 					for (PostRequireSkill postrequireSkill : postRequireSkillList) {
 						SkillDTO skillDTO = new SkillDTO();
