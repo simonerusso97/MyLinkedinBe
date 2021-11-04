@@ -24,11 +24,8 @@ public class CompanyService implements ICompanyService {
 
 	@Override
 	public Company findByNameAndPassword(String name, String pwd) {
-		try {
 			return companyRepo.findByNameAndPassword(name, pwd);
-		}catch (Exception e) {
-			throw e;
-		}
+		
 	}
 
 	@Override
@@ -42,19 +39,22 @@ public class CompanyService implements ICompanyService {
 	}
 
 	@Override
-	public void findByName(String name) throws CompanyAlreadyExist {
-		try {
-			companyRepo.findByName(name);
-		}catch (Exception e) {
-			throw new CompanyAlreadyExist();
-		}
+	public Company findByName(String name) throws CompanyAlreadyExist {
+		
+			 if(companyRepo.findByName(name) == null) {
+				 return null;
+			 }
+			 else {
+				throw new CompanyAlreadyExist();
+			 }
+		
 		
 	}
 
 	@Override
-	public void save(Company company) {
+	public Company save(Company company) {
 		try {
-			companyRepo.save(company);
+			return companyRepo.save(company);
 		}catch (Exception e) {
 			throw e;
 		}

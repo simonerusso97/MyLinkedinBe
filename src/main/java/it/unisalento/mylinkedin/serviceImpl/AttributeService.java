@@ -45,9 +45,9 @@ public class AttributeService implements IAttributeService {
 	}
 
 	@Override
-	public void save(Attribute attribute) {
+	public Attribute save(Attribute attribute) {
 		try {
-			attributeRepo.save(attribute);
+			return attributeRepo.save(attribute);
 		} catch (Exception e) {
 			throw e;
 		}		

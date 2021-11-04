@@ -24,7 +24,7 @@ public interface UserRepository extends JpaRepository<User, Integer>{
 
 	Admin findAdminById(int id);
 
-	void findByEmail(String email);
+	Regular findByEmail(String email);
 
 	List<Offeror> findByCompanyIdAndVerified(int idCompany, boolean ver);
 

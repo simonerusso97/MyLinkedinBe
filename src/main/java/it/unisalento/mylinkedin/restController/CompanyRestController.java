@@ -60,7 +60,7 @@ public class CompanyRestController {
 		
 		Company company = new Company();
 		
-		companyService.findByName(companyDTO.getName());
+		companyService.findByName(companyDTO.getName().toUpperCase());
 		company.setName(companyDTO.getName().toUpperCase());
 		company.setDescription(companyDTO.getDescription());
 		company.setPassword(companyDTO.getPassword());

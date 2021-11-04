@@ -86,30 +86,6 @@ public class AttachedRestController {
 		}
 		return attachedDTOList;
 	}
-		
-		//Path path = Paths.get(new File(UPLOADED_FOLDER+attached.getName()).getPath());
-		
-		
-		/*byte[] bytes = Files.readAllBytes(path);
-		//MultipartFile file;
-		//bytes.
-		FileItem fileItem = new DiskFileItem("fileData", "application/pdf",true, attached.getName(), bytes.length, new java.io.File(System.getProperty("java.io.tmpdir")));              
-		//MultipartFile multipartFile = new CommonsMultipartFile(fileItem);
-		
-		
-		return null;
-		
-	}*/
-	
-	
-	/*@PostMapping("/uploadFileAndInfo")
-	public ResponseEntity<?> uploadWithInfo(@ModelAttribute AttachedDTO attachment) throws IOException {
-		
-		saveFile(attachment.getFile());
-		
-		
-		return new ResponseEntity("OK", HttpStatus.OK);
-	}*/
 	
 	
 	private String saveFile(MultipartFile file) throws IOException {

@@ -16,7 +16,7 @@ public interface IStructureService {
 
 	Structure getById(int id) throws StructureNotFound;
 
-	void save(Structure structure);
+	Structure save(Structure structure);
 
 	void removeAttribute(List<StructureHasAttribute> toRemoveList);
 

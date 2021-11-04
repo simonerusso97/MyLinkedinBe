@@ -7,7 +7,7 @@ import it.unisalento.mylinkedin.exceptions.CommentNotFoundException;
 
 public interface ICommentService {
 
-	void save(Comment comment);
+	Comment save(Comment comment);
 
 	List<Comment> findChild(int id);
 

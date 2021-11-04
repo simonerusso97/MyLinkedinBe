@@ -14,7 +14,7 @@ public interface IAttributeService {
 
 	void deleteAttribute(Attribute attribute);
 
-	void save(Attribute attribute);
+	Attribute save(Attribute attribute);
 
 	List<StructureHasAttribute> findByStructureId(int id);
 

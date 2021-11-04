@@ -56,9 +56,9 @@ public class StructureService implements IStructureService {
 	}
 
 	@Override
-	public void save(Structure structure) {
+	public Structure save(Structure structure) {
 		try {
-			structureRepo.save(structure);
+			return structureRepo.save(structure);
 		}catch (Exception e) {
 			throw e;
 		}		

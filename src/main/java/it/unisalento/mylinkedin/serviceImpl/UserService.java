@@ -63,18 +63,18 @@ public class UserService implements IUserService {
 	}
 
 	@Override
-	public void save(Regular regular) {
+	public Regular save(Regular regular) {
 		try {
-			userRepo.save(regular);
+			return userRepo.save(regular);
 		}catch (Exception e) {
 			throw e;
 		}
 	}
 
 	@Override
-	public void findByEmail(String email) {
+	public Regular findByEmail(String email) {
 		try {
-			userRepo.findByEmail(email);
+			return userRepo.findByEmail(email);
 		}catch (Exception e) {
 			throw e;
 		}
@@ -100,9 +100,9 @@ public class UserService implements IUserService {
 	}
 
 	@Override
-	public void updateInterestedList(List<RegularInterestedInPost> updatedList) {
+	public List<RegularInterestedInPost> updateInterestedList(List<RegularInterestedInPost> updatedList) {
 		try {
-			riipRepo.saveAll(updatedList);
+			return riipRepo.saveAll(updatedList);
 		} catch (Exception e) {
 			throw e;
 		}
@@ -141,9 +141,9 @@ public class UserService implements IUserService {
 	}
 
 	@Override
-	public void saveMessage(Message message) {
+	public Message saveMessage(Message message) {
 		try {
-			messageRepo.save(message);
+			return messageRepo.save(message);
 		} catch (Exception e) {
 			throw e;
 		}

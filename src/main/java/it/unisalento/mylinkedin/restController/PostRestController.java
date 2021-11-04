@@ -108,7 +108,6 @@ public class PostRestController {
 	  return list; 
 	  }
 	 
-	
 	@RequestMapping(value="/changePostVisibility", method = RequestMethod.PATCH, produces=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PostDTO> hideShowPost(@RequestBody @Valid PostDTO postDTO) throws PostNotFoundException, OperationFailedException{
 		
@@ -252,7 +251,7 @@ public class PostRestController {
 	}
 	
 	@RequestMapping(value="/saveComment/{postId}/{parentId}", method = RequestMethod.PATCH, produces=MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CommentDTO> saveComment(@PathVariable("postId") int postId, @PathVariable("parentId") int parentId, @RequestBody @Valid CommentDTO commentDTO) throws PostNotFoundException, UserNotFoundException, CommentNotFoundException{
+	public ResponseEntity<CommentDTO> saveReplyComment(@PathVariable("postId") int postId, @PathVariable("parentId") int parentId, @RequestBody @Valid CommentDTO commentDTO) throws PostNotFoundException, UserNotFoundException, CommentNotFoundException{
 	
 		Comment comment = new Comment();
 		comment.setDate(commentDTO.getDate());

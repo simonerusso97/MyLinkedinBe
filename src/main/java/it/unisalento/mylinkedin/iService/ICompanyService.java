@@ -14,8 +14,8 @@ public interface ICompanyService {
 
 	List<Company> findAll();
 
-	void findByName(String name) throws CompanyAlreadyExist;
+	Company findByName(String name) throws CompanyAlreadyExist;
 
-	void save(Company company);
+	Company save(Company company);
 
 }

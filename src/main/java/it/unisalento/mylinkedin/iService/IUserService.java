@@ -17,15 +17,15 @@ public interface IUserService {
 
 	Regular findById(int id) throws UserNotFoundException;
 
-	void save(Regular regular);
+	Regular save(Regular regular);
 
-	void findByEmail(String email);
+	Regular findByEmail(String email);
 
 	List<Offeror> findByCompanyIdAndVerified(int idCompany, boolean ver);
 
 	List<RegularInterestedInPost> findInterestedPostByUserId(int userId);
 
-	void updateInterestedList(List<RegularInterestedInPost> updatedList);
+	List<RegularInterestedInPost> updateInterestedList(List<RegularInterestedInPost> updatedList);
 
 	void removeInterest(List<RegularInterestedInPost> toRemoveList);
 
@@ -35,6 +35,6 @@ public interface IUserService {
 
 	List<User> findAllUser();
 
-	void saveMessage(Message message);
+	Message saveMessage(Message message);
 
 }

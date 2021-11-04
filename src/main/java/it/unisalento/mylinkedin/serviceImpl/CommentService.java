@@ -15,14 +15,7 @@ public class CommentService implements ICommentService {
 
 	@Autowired
 	CommentRepository commentRepo;
-	@Override
-	public void save(Comment comment) {
-		try {
-			commentRepo.save(comment);
-		} catch (Exception e) {
-			throw e;
-		}		
-	}
+	
 	@Override
 	public List<Comment> findChild(int id) {
 		try {
@@ -34,6 +27,15 @@ public class CommentService implements ICommentService {
 	@Override
 	public Comment findById(int parentId) throws CommentNotFoundException {
 		return commentRepo.findById(parentId).orElseThrow(() -> new CommentNotFoundException());
+	}
+	
+	@Override
+	public Comment save(Comment comment) {
+		try {
+			 return commentRepo.save(comment);
+		} catch (Exception e) {
+			throw e;
+		}
 	}
 
 }
