@@ -52,6 +52,8 @@ public class LoginOfferorImpl implements LoginStrategy{
 		offerorDTO.setDegree(offeror.getDegree());
 		offerorDTO.setPosition(offeror.getPosition());
 		offerorDTO.setVerified(offeror.isVerified());
+		offerorDTO.setToken(offeror.getToken());
+
 				
 		CompanyDTO companyDTO = new CompanyDTO();
 		companyDTO.setId(offeror.getCompany().getId());

@@ -49,6 +49,7 @@ public class LoginApplicantImpl implements LoginStrategy{
 		applicantDTO.setBanned(applicant.isBanned());
 		applicantDTO.setDisabled(applicant.isDisabled());
 		applicantDTO.setDegree(applicant.getDegree());
+		applicantDTO.setToken(applicant.getToken());
 		
        return applicantDTO;
 	}

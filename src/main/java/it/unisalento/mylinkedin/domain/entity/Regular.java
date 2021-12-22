@@ -21,6 +21,8 @@ public class Regular extends User{
 	}
 	String address;	
 	String degree;
+	String token;
+	
 	@Column(columnDefinition = "bit(1) default 0")
 	boolean banned;
 	@Column(columnDefinition = "bit(1) default 1")
@@ -79,5 +81,15 @@ public class Regular extends User{
 	public void setRegularInterestedInPostList(List<RegularInterestedInPost> regularInterestedInPostList) {
 		this.interestedPostList = regularInterestedInPostList;
 	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+	
+	
 }
 

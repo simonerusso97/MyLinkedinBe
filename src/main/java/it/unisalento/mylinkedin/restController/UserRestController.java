@@ -6,6 +6,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.firebase.messaging.BatchResponse;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.MulticastMessage;
+import com.google.firebase.messaging.Notification;
+
 import it.unisalento.mylinkedin.domain.entity.Admin;
 import it.unisalento.mylinkedin.domain.entity.Applicant;
 import it.unisalento.mylinkedin.domain.entity.Message;
@@ -35,14 +41,19 @@ import it.unisalento.mylinkedin.strategy.login.LoginContext;
 import it.unisalento.mylinkedin.strategy.login.LoginOfferorImpl;
 import org.springframework.http.ResponseEntity;
 
-
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -409,5 +420,30 @@ public class UserRestController {
 		message.setText(messageDTO.getText());
 		userService.saveMessage(message);
 		return new ResponseEntity<MessageDTO>(HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/saveToken/{idUser}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	private ResponseEntity<String> saveToken(@PathVariable("idUser") int idUser, @RequestBody @Valid String token) throws UserNotFoundException{
+		Regular regular = userService.findById(idUser);
+		regular.setToken(token);
+		userService.save(regular);
+		return new ResponseEntity<String>(HttpStatus.OK);
+
+	}
+	@RequestMapping(value="/sendNotification/{idUser}/{name}/{surname}", method = RequestMethod.GET)
+	private ResponseEntity<String> sendNotification(@PathVariable("idUser") int idUser, @PathVariable("name") String name, @PathVariable("surname") String surname) throws FirebaseMessagingException, UserNotFoundException{
+		Regular user = (Regular) userService.findUserById(idUser);
+		Notification.Builder builder = Notification.builder();
+		MulticastMessage notMess = MulticastMessage.builder()
+				.setNotification(builder.setTitle("Qualcuno è interessato al tuo post")
+						.setBody(name+ ' '+ surname)
+						.build())
+				.putData("notification_foreground", "true")
+		        .addToken(user.getToken())
+		        .build();
+		System.out.println("Sending notification...");
+		BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(notMess);
+		System.out.println(response.getSuccessCount()+ " messages were sent successfully");
+		return new ResponseEntity<String>(HttpStatus.OK);
 	}
 }

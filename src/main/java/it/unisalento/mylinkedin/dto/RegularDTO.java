@@ -12,6 +12,7 @@ public class RegularDTO extends UserDTO{
 	String address;
 	boolean banned;
 	boolean disabled;
+	String token;
 	//List<PostDTO> interestedPostList;
 	String degree;	
 	
@@ -46,5 +47,14 @@ public class RegularDTO extends UserDTO{
 	public void setDegree(String degree) {
 		this.degree = degree;
 	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+	
 
 }
