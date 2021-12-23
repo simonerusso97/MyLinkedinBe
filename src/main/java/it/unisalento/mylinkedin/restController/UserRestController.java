@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -42,6 +45,7 @@ import it.unisalento.mylinkedin.strategy.login.LoginOfferorImpl;
 import org.springframework.http.ResponseEntity;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -238,42 +242,54 @@ public class UserRestController {
 	}
 	
 	@RequestMapping(value="/updateInterestedList/{userId}",method=RequestMethod.PATCH, produces=MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RegularDTO> savePost (@PathVariable("userId") int userId, @RequestBody @Valid List<PostDTO> postList) throws PostNotFoundException, UserNotFoundException{
-		List<PostDTO> tempList = new ArrayList<>();
+    public ResponseEntity<RegularDTO> savePost (@PathVariable("userId") int userId, @RequestBody @Valid List<PostDTO> newInterestedList) throws PostNotFoundException, UserNotFoundException{
+		List<PostDTO> tempList = new ArrayList<>(); //tempList contiene i nuovi post che devono essere aggiunti
 		List<RegularInterestedInPost> updatedList = new ArrayList<>();
-		List<RegularInterestedInPost> toRemoveList = new ArrayList<>();
+		List<RegularInterestedInPost> toRemoveList = new ArrayList<>();//toRemoveList contiene i post che non sono più presenti tra quelli salvati
+		List<Post> toNotifyPost = new ArrayList<>();// toNotifyPost contiene i post che devono essere notificati a fine giornate
+
 		RegularInterestedInPost regularInterestedInPost;
 		Post post;
 		boolean found = false;
 		
 		Regular regular = userService.findById(userId);
-		tempList.addAll(postList);
+		tempList.addAll(newInterestedList);
 		
 		
-		List<RegularInterestedInPost> regularInterestedInPostList = userService.findInterestedPostByUserId(userId);
-		for (RegularInterestedInPost RIIP : regularInterestedInPostList) {
-			for (PostDTO postDTO : postList) {
-				if(RIIP.getPost().getId() == postDTO.getId()) {
-					updatedList.add(RIIP);
-					tempList.remove(postDTO);
+		List<RegularInterestedInPost> oInterestedList = userService.findInterestedPostByUserId(userId);
+		
+		//Cerco tutti i post che erano presenti nella lista prima della chiamata e che sono ancora presenti
+		//nella lista dopo la chiamata e li salvo in updatedList 
+		for (RegularInterestedInPost oRIIP : oInterestedList) {
+			for (PostDTO newPostDTO : newInterestedList) {
+				if(oRIIP.getPost().getId() == newPostDTO.getId()) {
+					updatedList.add(oRIIP);
+					tempList.remove(newPostDTO);
 					found = true;
 					break;
 				}
 			}
 			if(!found) {
-				toRemoveList.add(RIIP);
+				toRemoveList.add(oRIIP);
 			}
 		}
 		
+		//Ora aggiungo in updatedList i post che non erano ancora prensti 
 		for (PostDTO postDTO : tempList) {
 			post = postService.findById(postDTO.getId());
 			regularInterestedInPost = new RegularInterestedInPost();
 			regularInterestedInPost.setPost(post);
 			regularInterestedInPost.setRegular(regular);
 			updatedList.add(regularInterestedInPost);
+			toNotifyPost.add(post);
 			}
 		
 		userService.updateInterestedList(updatedList);
+		
+		//salvo i nuovi post per inviare una notifica a fine giornata
+		postService.addToNotify(userId, toNotifyPost);
+		
+		//Rimuovo i post non più presenti
 		userService.removeInterest(toRemoveList);
 		
 		return new ResponseEntity<RegularDTO>(HttpStatus.OK);
@@ -431,8 +447,9 @@ public class UserRestController {
 
 	}
 	@RequestMapping(value="/sendNotification/{idUser}/{name}/{surname}", method = RequestMethod.GET)
-	private ResponseEntity<String> sendNotification(@PathVariable("idUser") int idUser, @PathVariable("name") String name, @PathVariable("surname") String surname) throws FirebaseMessagingException, UserNotFoundException{
+	private ResponseEntity<String> sendNotification(@PathVariable("idUser") int idUser, @PathVariable("name") String name, @PathVariable("surname") String surname) throws FirebaseMessagingException, UserNotFoundException, IOException{
 		Regular user = (Regular) userService.findUserById(idUser);
+		
 		Notification.Builder builder = Notification.builder();
 		MulticastMessage notMess = MulticastMessage.builder()
 				.setNotification(builder.setTitle("Qualcuno è interessato al tuo post")

@@ -4,7 +4,9 @@ import java.util.List;
 
 import it.unisalento.mylinkedin.domain.entity.JsonDocument;
 import it.unisalento.mylinkedin.domain.entity.Post;
+import it.unisalento.mylinkedin.domain.entity.ToNotifyPost;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
+import it.unisalento.mylinkedin.dto.PostDTO;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
 import it.unisalento.mylinkedin.exceptions.PostNotFoundException;
 
@@ -21,5 +23,9 @@ public interface IPostService {
 	int getLastJsonDucumentIndex();
 
 	JsonDocument saveJsonDocument(JsonDocument jsonDocument);
+
+	void addToNotify(int userId, List<Post> postList);
+
+	List<ToNotifyPost> findAllToNotify();
 
 }

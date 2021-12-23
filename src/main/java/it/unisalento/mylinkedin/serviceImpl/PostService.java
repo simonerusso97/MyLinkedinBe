@@ -1,5 +1,6 @@
 package it.unisalento.mylinkedin.serviceImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +9,12 @@ import org.springframework.stereotype.Service;
 import it.unisalento.mylinkedin.dao.JsonDocumentRepository;
 import it.unisalento.mylinkedin.dao.PostRepository;
 import it.unisalento.mylinkedin.dao.RegularInterestedInPostRepository;
+import it.unisalento.mylinkedin.dao.ToNotifyPostRepository;
 import it.unisalento.mylinkedin.domain.entity.JsonDocument;
 import it.unisalento.mylinkedin.domain.entity.Post;
+import it.unisalento.mylinkedin.domain.entity.ToNotifyPost;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
+import it.unisalento.mylinkedin.dto.PostDTO;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
 import it.unisalento.mylinkedin.exceptions.PostNotFoundException;
 import it.unisalento.mylinkedin.iService.IPostService;
@@ -26,6 +30,11 @@ public class PostService implements IPostService {
 	
 	@Autowired
 	JsonDocumentRepository jDocRepo;
+	
+	@Autowired 
+	ToNotifyPostRepository toNotifyPostRepo;
+	
+	
 	
 	@Override
 	public Post findById(int id) throws PostNotFoundException {
@@ -75,6 +84,26 @@ public class PostService implements IPostService {
 			throw e;
 		}
 		return null;
+	}
+
+	@Override
+	public void addToNotify(int userId, List<Post> postList) {
+		List<ToNotifyPost> toNotifyPostList = new ArrayList<>();
+		ToNotifyPost toNotifyPost;
+		for(Post post : postList) {
+			toNotifyPost = new ToNotifyPost();
+			toNotifyPost.setIdPost(post.getId());
+			toNotifyPost.setIdUser(userId);
+			toNotifyPostList.add(toNotifyPost);
+		}
+		toNotifyPostRepo.saveAll(toNotifyPostList);
+
+	}
+
+	@Override
+	public List<ToNotifyPost> findAllToNotify() {
+		return toNotifyPostRepo.findAll();
+		
 	}
 
 }
