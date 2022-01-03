@@ -12,6 +12,8 @@ import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
 public interface RegularInterestedInPostRepository extends JpaRepository<RegularInterestedInPost, Integer> {
 
 	List<RegularInterestedInPost> findByRegularId(int userId);
+
+	List<RegularInterestedInPost> findByNotified(boolean notified);
 	
 
 }

@@ -25,6 +25,8 @@ public class RegularInterestedInPost{
 	
 	@ManyToOne
 	Post post;
+	
+	boolean notified;
 
 	
 
@@ -42,6 +44,22 @@ public class RegularInterestedInPost{
 
 	public void setPost(Post post) {
 		this.post = post;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public boolean isNotified() {
+		return notified;
+	}
+
+	public void setNotified(boolean notified) {
+		this.notified = notified;
 	}
 	
 	

@@ -280,6 +280,7 @@ public class UserRestController {
 			regularInterestedInPost = new RegularInterestedInPost();
 			regularInterestedInPost.setPost(post);
 			regularInterestedInPost.setRegular(regular);
+			regularInterestedInPost.setNotified(false);
 			updatedList.add(regularInterestedInPost);
 			toNotifyPost.add(post);
 			}
@@ -287,7 +288,6 @@ public class UserRestController {
 		userService.updateInterestedList(updatedList);
 		
 		//salvo i nuovi post per inviare una notifica a fine giornata
-		postService.addToNotify(userId, toNotifyPost);
 		
 		//Rimuovo i post non più presenti
 		userService.removeInterest(toRemoveList);

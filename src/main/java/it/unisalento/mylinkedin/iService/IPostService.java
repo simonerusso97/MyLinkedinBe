@@ -1,10 +1,10 @@
 package it.unisalento.mylinkedin.iService;
 
+import java.util.Collection;
 import java.util.List;
 
 import it.unisalento.mylinkedin.domain.entity.JsonDocument;
 import it.unisalento.mylinkedin.domain.entity.Post;
-import it.unisalento.mylinkedin.domain.entity.ToNotifyPost;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
 import it.unisalento.mylinkedin.dto.PostDTO;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
@@ -24,8 +24,7 @@ public interface IPostService {
 
 	JsonDocument saveJsonDocument(JsonDocument jsonDocument);
 
-	void addToNotify(int userId, List<Post> postList);
 
-	List<ToNotifyPost> findAllToNotify();
+	List<RegularInterestedInPost> finAllInterestedNotNotified();
 
 }

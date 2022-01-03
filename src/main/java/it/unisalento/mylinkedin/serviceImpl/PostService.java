@@ -9,10 +9,8 @@ import org.springframework.stereotype.Service;
 import it.unisalento.mylinkedin.dao.JsonDocumentRepository;
 import it.unisalento.mylinkedin.dao.PostRepository;
 import it.unisalento.mylinkedin.dao.RegularInterestedInPostRepository;
-import it.unisalento.mylinkedin.dao.ToNotifyPostRepository;
 import it.unisalento.mylinkedin.domain.entity.JsonDocument;
 import it.unisalento.mylinkedin.domain.entity.Post;
-import it.unisalento.mylinkedin.domain.entity.ToNotifyPost;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
 import it.unisalento.mylinkedin.dto.PostDTO;
 import it.unisalento.mylinkedin.exceptions.OperationFailedException;
@@ -31,8 +29,6 @@ public class PostService implements IPostService {
 	@Autowired
 	JsonDocumentRepository jDocRepo;
 	
-	@Autowired 
-	ToNotifyPostRepository toNotifyPostRepo;
 	
 	
 	
@@ -86,24 +82,14 @@ public class PostService implements IPostService {
 		return null;
 	}
 
+
 	@Override
-	public void addToNotify(int userId, List<Post> postList) {
-		List<ToNotifyPost> toNotifyPostList = new ArrayList<>();
-		ToNotifyPost toNotifyPost;
-		for(Post post : postList) {
-			toNotifyPost = new ToNotifyPost();
-			toNotifyPost.setIdPost(post.getId());
-			toNotifyPost.setIdUser(userId);
-			toNotifyPostList.add(toNotifyPost);
+	public List<RegularInterestedInPost> finAllInterestedNotNotified() {
+		try {
+			return riipRepo.findByNotified(false);
+		}catch (Exception e) {
+			throw e;
 		}
-		toNotifyPostRepo.saveAll(toNotifyPostList);
-
-	}
-
-	@Override
-	public List<ToNotifyPost> findAllToNotify() {
-		return toNotifyPostRepo.findAll();
-		
 	}
 
 }
