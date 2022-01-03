@@ -30,6 +30,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
 
+import it.unisalento.mylinkedin.domain.entity.Post;
 import it.unisalento.mylinkedin.domain.entity.Regular;
 import it.unisalento.mylinkedin.domain.relationship.PostRequireSkill;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
@@ -69,6 +70,7 @@ public class MyLinkedinApplication implements ApplicationRunner{
 		List<RegularInterestedInPost> toNotifyPostList;
 		List<Regular> userList;
 		List<ToNotifyPostDTO> notificationList;
+		List<Post> postList;
 		Regular regular;
 		boolean cont = true;
 
@@ -79,7 +81,7 @@ public class MyLinkedinApplication implements ApplicationRunner{
 
 
 				//TODO: sistemare orario
-				if(dtf.format(now).toString().equals("14:03")) {
+				if(dtf.format(now).toString().equals("17:45")) {
 					System.out.println("Notifica di riepilogo");
 					//Dividere per id User e poi inviare la notifica
 					toNotifyPostList = new ArrayList<>();
@@ -88,14 +90,23 @@ public class MyLinkedinApplication implements ApplicationRunner{
 
 
 					userList = new ArrayList<>();
+					postList = new ArrayList<>();
 
 					//Salvo l'id di tutti gli utenti a cui deve essere inviata una notifica
 					for(RegularInterestedInPost tnp : toNotifyPostList) {
-						if(!userList.contains(tnp.getRegular())) {
-							userList.add(tnp.getRegular());
+						if(!userList.contains(tnp.getPost().getCreatedBy())) {
+							userList.add(tnp.getPost().getCreatedBy());
+						}
+						
+					}
+					
+					for(RegularInterestedInPost tnp : toNotifyPostList) {
+						if(!postList.contains(tnp.getPost())) {
+							postList.add(tnp.getPost());
 						}
 					}
-
+					
+					
 					//Per ogni id salvato invio una notifca per dire che è disponibile un riepilogo
 
 					ToNotifyPostDTO tnpDTO;
@@ -106,30 +117,19 @@ public class MyLinkedinApplication implements ApplicationRunner{
 					for(Regular user : userList) {
 						notificationList = new ArrayList<>();
 
-						for(RegularInterestedInPost tnp : toNotifyPostList) {
-							if(tnp.getRegular().getId()==(user.getId())) {
+						for(Post post : postList) {
+							if(post.getCreatedBy().getId()==(user.getId())) {
+								
 								tnpDTO = new ToNotifyPostDTO();
-								tnpDTO.setId(tnp.getId());
-
-								regularDTO = new RegularDTO();
-								regularDTO.setName(tnp.getRegular().getName());
-								regularDTO.setSurname(tnp.getRegular().getSurname());
-								regularDTO.setAddress(tnp.getRegular().getAddress());
-								regularDTO.setBanned(tnp.getRegular().isBanned());
-								regularDTO.setBirthDate(tnp.getRegular().getBirthDate());
-								regularDTO.setDegree(tnp.getRegular().getDegree());
-								regularDTO.setDisabled(tnp.getRegular().isDisabled());
-								regularDTO.setEmail(tnp.getRegular().getEmail());
-								regularDTO.setId(tnp.getRegular().getId());
-
+								
 								postDTO = new PostDTO();
-								postDTO.setHide(tnp.getPost().isHide());
-								postDTO.setId(tnp.getPost().getId());
-								postDTO.setName(tnp.getPost().getName());
-								postDTO.setPubblicationDate(tnp.getPost().getPubblicationDate());
+								postDTO.setHide(post.isHide());
+								postDTO.setId(post.getId());
+								postDTO.setName(post.getName());
+								postDTO.setPubblicationDate(post.getPubblicationDate());
 
 								JSONParser parser = new JSONParser();
-								Reader reader = new FileReader(tnp.getPost().getJsonDocument().getName());
+								Reader reader = new FileReader(post.getJsonDocument().getName());
 								JSONObject jsonObject = (JSONObject) parser.parse(reader);
 
 								Set<String> keys = jsonObject.keySet();
@@ -144,11 +144,27 @@ public class MyLinkedinApplication implements ApplicationRunner{
 								}
 
 								postDTO.setJsonDocument(jsonDocumentDTOList);
-
-
-								tnpDTO.setPostDTO(postDTO);
-								tnpDTO.setRegularDTO(regularDTO);
+								
+								tnpDTO.setPost(postDTO);
 								notificationList.add(tnpDTO);
+							}
+						}
+						
+						for(ToNotifyPostDTO tnp: notificationList) {
+							for(RegularInterestedInPost riipToNotify : toNotifyPostList) {
+								if(riipToNotify.getPost().getId()==(tnp.getPost().getId())) {
+									regularDTO = new RegularDTO();
+									regularDTO.setName(riipToNotify.getRegular().getName());
+									regularDTO.setSurname(riipToNotify.getRegular().getSurname());
+									regularDTO.setAddress(riipToNotify.getRegular().getAddress());
+									regularDTO.setBanned(riipToNotify.getRegular().isBanned());
+									regularDTO.setBirthDate(riipToNotify.getRegular().getBirthDate());
+									regularDTO.setDegree(riipToNotify.getRegular().getDegree());
+									regularDTO.setDisabled(riipToNotify.getRegular().isDisabled());
+									regularDTO.setEmail(riipToNotify.getRegular().getEmail());
+									regularDTO.setId(riipToNotify.getRegular().getId());
+									tnp.getUsers().add(regularDTO);
+								}
 							}
 						}
 

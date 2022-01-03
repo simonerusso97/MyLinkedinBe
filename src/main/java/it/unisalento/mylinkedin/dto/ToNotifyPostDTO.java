@@ -1,9 +1,12 @@
 package it.unisalento.mylinkedin.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ToNotifyPostDTO {
 	int id;
-	RegularDTO regularDTO;
-	PostDTO postDTO;
+	List<RegularDTO> users = new ArrayList<>();
+	PostDTO post;
 	
 	public int getId() {
 		return id;
@@ -11,18 +14,19 @@ public class ToNotifyPostDTO {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public RegularDTO getRegularDTO() {
-		return regularDTO;
+	public List<RegularDTO> getUsers() {
+		return users;
 	}
-	public void setRegularDTO(RegularDTO regularDTO) {
-		this.regularDTO = regularDTO;
+	public void setUsers(List<RegularDTO> users) {
+		this.users = users;
 	}
-	public PostDTO getPostDTO() {
-		return postDTO;
+	public PostDTO getPost() {
+		return post;
 	}
-	public void setPostDTO(PostDTO postDTO) {
-		this.postDTO = postDTO;
+	public void setPost(PostDTO post) {
+		this.post = post;
 	}
+	
 	
 	
 
