@@ -175,15 +175,15 @@ public class StructureRestController {
 		List<StructureDTO> structureDTOList = new ArrayList<>();
 		List<AttributeDTO> attributeDTOList = new ArrayList<>();
 
-
+		StructureDTO structureDTO;
 		for (Structure structure : structureList) {
-			StructureDTO structureDTO = new StructureDTO();
+			structureDTO = new StructureDTO();
 			structureDTO.setId(structure.getId());
 			structureDTO.setName(structure.getName());
 			structureDTO.setDescription(structure.getDescription());
 			structureDTO.setUserType(structure.getUserType());
 			structureDTO.setDeletable(structure.isDeletable());
-			
+			attributeDTOList.clear();
 			structure.getStructureHasAttributeList().forEach(
 					(structureHasAttribute) -> {
 						Attribute attribute = structureHasAttribute.getAttribute();

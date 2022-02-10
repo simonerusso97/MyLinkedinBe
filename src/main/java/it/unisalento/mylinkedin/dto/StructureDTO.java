@@ -1,5 +1,6 @@
 package it.unisalento.mylinkedin.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -59,7 +60,10 @@ public class StructureDTO {
 	}
 
 	public void setAttributeList(List<AttributeDTO> attributeList) {
-		this.attributeList = attributeList;
+		this.attributeList = new ArrayList<>();
+		attributeList.forEach( attribute -> {
+			this.attributeList.add(attribute);
+		});
 	}
 	
 	

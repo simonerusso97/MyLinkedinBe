@@ -181,7 +181,7 @@ public class UserRestController {
 			applicant.setName(applicantDTO.getName());
 			applicant.setPassword(applicantDTO.getPassword());
 			applicant.setSurname(applicantDTO.getSurname());
-			applicant.setDisabled(applicantDTO.isDisabled());
+			applicant.setDisabled(true);
 			
 			userService.save(applicant);
 			return new ResponseEntity<ApplicantDTO>(HttpStatus.CREATED);
@@ -201,7 +201,7 @@ public class UserRestController {
 			offeror.setName(offerorDTO.getName());
 			offeror.setPassword(offerorDTO.getPassword());
 			offeror.setSurname(offerorDTO.getSurname());
-			offeror.setDisabled(offerorDTO.isDisabled());
+			offeror.setDisabled(true);
 			offeror.setPosition(offerorDTO.getPosition());
 			offeror.setVerified(offerorDTO.isVerified());
 			
@@ -420,6 +420,38 @@ public class UserRestController {
 			}
 			
 			userDTOList.add(userDTO);
+		}
+		
+		return userDTOList;
+	}
+	
+	@RequestMapping(value="/getAllRegular", method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	private List<UserDTO> getAllRegular(){
+		List<User> userList = new ArrayList<>();
+		userList = userService.findAllUser();
+		List<UserDTO> userDTOList = new ArrayList<>();
+		
+		for (User user : userList) {
+			UserDTO userDTO = new RegularDTO();
+			if(user.getClass() != Admin.class) {
+				userDTO.setType("Admin");
+			
+				userDTO.setBirthDate(user.getBirthDate());
+				userDTO.setEmail(user.getEmail());
+				userDTO.setId(user.getId());
+				userDTO.setName(user.getName());
+				userDTO.setSurname(user.getSurname());
+				
+				if(user.getClass() == Applicant.class) {
+					userDTO.setType("Applicant");
+				}
+				if(user.getClass() == Offeror.class) {
+					userDTO.setType("Offeror");
+				}
+				
+				
+				userDTOList.add(userDTO);
+			}
 		}
 		
 		return userDTOList;
