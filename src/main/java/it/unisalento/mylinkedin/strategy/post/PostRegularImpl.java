@@ -19,6 +19,7 @@ import it.unisalento.mylinkedin.dto.CompanyDTO;
 import it.unisalento.mylinkedin.dto.JsonDocumentDTO;
 import it.unisalento.mylinkedin.dto.OfferorDTO;
 import it.unisalento.mylinkedin.dto.PostDTO;
+import it.unisalento.mylinkedin.dto.RegularDTO;
 import it.unisalento.mylinkedin.dto.SkillDTO;
 import it.unisalento.mylinkedin.exceptions.UserNotFoundException;
 import it.unisalento.mylinkedin.iService.IAttachedService;
@@ -53,19 +54,14 @@ public class PostRegularImpl implements GetPostStrategy{
 				
 				postDTO.setSkillList(skillDTOList);
 				Regular regular = userService.findById(post.getCreatedBy().getId());
-				if(regular.getClass() == Offeror.class) {
-					OfferorDTO offerorDTO = new OfferorDTO();
-					Offeror offeror = (Offeror) regular;
-					offerorDTO.setId(offeror.getId());
-					offerorDTO.setName(offeror.getName());
-					offerorDTO.setSurname(offeror.getSurname());
-					offerorDTO.setEmail(offeror.getEmail());
-					CompanyDTO companyDTO = new CompanyDTO();
-					companyDTO.setName(offeror.getCompany().getName());
-					offerorDTO.setCompany(companyDTO);				
+					RegularDTO offerorDTO = new RegularDTO();
+					offerorDTO.setId(regular.getId());
+					offerorDTO.setName(regular.getName());
+					offerorDTO.setSurname(regular.getSurname());
+					offerorDTO.setEmail(regular.getEmail());
 					
 					postDTO.setCreatedBy(offerorDTO);
-				}
+				
 				
 				
 				JSONParser parser = new JSONParser();

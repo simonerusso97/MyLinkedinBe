@@ -6,9 +6,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -17,6 +14,7 @@ import com.google.firebase.messaging.Notification;
 
 import it.unisalento.mylinkedin.domain.entity.Admin;
 import it.unisalento.mylinkedin.domain.entity.Applicant;
+import it.unisalento.mylinkedin.domain.entity.Attached;
 import it.unisalento.mylinkedin.domain.entity.Message;
 import it.unisalento.mylinkedin.domain.entity.Offeror;
 import it.unisalento.mylinkedin.domain.entity.Post;
@@ -25,12 +23,14 @@ import it.unisalento.mylinkedin.domain.entity.User;
 import it.unisalento.mylinkedin.domain.relationship.PostRequireSkill;
 import it.unisalento.mylinkedin.domain.relationship.RegularInterestedInPost;
 import it.unisalento.mylinkedin.dto.ApplicantDTO;
-import it.unisalento.mylinkedin.dto.CompanyDTO;
+import it.unisalento.mylinkedin.dto.AttachedDTO;
+import it.unisalento.mylinkedin.dto.JsonDocumentDTO;
 import it.unisalento.mylinkedin.dto.MessageDTO;
 import it.unisalento.mylinkedin.dto.OfferorDTO;
 import it.unisalento.mylinkedin.dto.PostDTO;
 import it.unisalento.mylinkedin.dto.RegularDTO;
 import it.unisalento.mylinkedin.dto.SkillDTO;
+import it.unisalento.mylinkedin.dto.StructureDTO;
 import it.unisalento.mylinkedin.dto.UserDTO;
 import it.unisalento.mylinkedin.exceptions.CompanyNotFound;
 import it.unisalento.mylinkedin.exceptions.PostNotFoundException;
@@ -44,20 +44,21 @@ import it.unisalento.mylinkedin.strategy.login.LoginContext;
 import it.unisalento.mylinkedin.strategy.login.LoginOfferorImpl;
 import org.springframework.http.ResponseEntity;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.Reader;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -296,7 +297,7 @@ public class UserRestController {
 	}
 	
 	@RequestMapping(value="/findAllInterestedPost/{idUser}", method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	private List<PostDTO> findAllInterestedPost(@PathVariable("idUser") int idUser) throws UserNotFoundException{
+	private List<PostDTO> findAllInterestedPost(@PathVariable("idUser") int idUser) throws UserNotFoundException, IOException, ParseException{
 		List<RegularInterestedInPost> riipList = postService.findInterestedPost(idUser);
 		List<PostDTO> postDTOList = new ArrayList<>();
 		PostDTO postDTO;
@@ -329,6 +330,44 @@ public class UserRestController {
 			regularDTO.setEmail(regular.getEmail());		
 			
 			postDTO.setCreatedBy(regularDTO);
+			List<Attached> attachedList = riip.getPost().getAttachedList();
+			List<AttachedDTO> attachedDTOList = new ArrayList<>(); 
+			AttachedDTO attachedDTO;
+			
+			for (Attached attached : attachedList) {
+				attachedDTO = new AttachedDTO();
+				attachedDTO.setId(attached.getId());
+				attachedDTO.setFilename(attached.getName());
+				attachedDTO.setType(attached.getType());
+				String code = encodeFileToBase64(new File("uploads/" + attached.getName()));
+				attachedDTO.setCode(code);
+				attachedDTOList.add(attachedDTO);
+			}
+			postDTO.setAttachedList(attachedDTOList);
+			
+			StructureDTO structureDTO = new StructureDTO();
+			structureDTO.setDescription(riip.getPost().getStructure().getDescription());
+			structureDTO.setId(riip.getPost().getStructure().getId());
+			structureDTO.setName(structureDTO.getName());
+			postDTO.setStructure(structureDTO);
+			
+			JSONParser parser = new JSONParser();
+			Reader reader = new FileReader(riip.getPost().getJsonDocument().getName());
+			JSONObject jsonObject = (JSONObject) parser.parse(reader);
+			
+			Set<String> keys = jsonObject.keySet(); 
+			
+			List<JsonDocumentDTO> jsonDocumentDTOList = new ArrayList<>();
+			for (String key : keys) {
+				JsonDocumentDTO jsonDocumentDTO = new JsonDocumentDTO();
+				jsonDocumentDTO.setNameAttribute(key);
+				jsonDocumentDTO.setValue((String) jsonObject.get(key));
+
+				jsonDocumentDTOList.add(jsonDocumentDTO);
+			}
+			
+			
+			postDTO.setJsonDocument(jsonDocumentDTOList);
 			
 			postDTOList.add(postDTO);
 		}
@@ -494,5 +533,14 @@ public class UserRestController {
 		BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(notMess);
 		System.out.println(response.getSuccessCount()+ " messages were sent successfully");
 		return new ResponseEntity<String>(HttpStatus.OK);
+	}
+	
+	private static String encodeFileToBase64(File file) {
+	    try {
+	        byte[] fileContent = Files.readAllBytes(file.toPath());
+	        return Base64.getEncoder().encodeToString(fileContent);
+	    } catch (IOException e) {
+	        throw new IllegalStateException("could not read file " + file, e);
+	    }
 	}
 }
